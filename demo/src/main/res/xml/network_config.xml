@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+<!--    <domain-config cleartextTrafficPermitted="true">-->
+<!--        <domain includeSubdomains="true">your-domain.com</domain>-->
+<!--        &lt;!&ndash; 可以添加多个域名 &ndash;&gt;-->
+<!--        <domain includeSubdomains="true">another-domain.com</domain>-->
+<!--    </domain-config>-->
+
+    <!-- 或者允许所有域名的明文流量（不推荐用于生产环境） -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+</network-security-config>

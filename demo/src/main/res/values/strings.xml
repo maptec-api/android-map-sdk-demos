@@ -1,0 +1,511 @@
+<resources>
+    <string name="app_name">地图Demo</string>
+    <string name="app_title">地图sdk demo</string>
+    <string name="permission_required_message">需要网络权限才能显示地图</string>
+
+    <!--     MainActivity  -->
+    <string name="screen_item_attention">鉴权配置</string>
+    <string name="screen_item_map">基础地图能力</string>
+    <string name="screen_item_overlay">业务图层</string>
+    <string name="screen_item_unified_search">搜索服务</string>
+    <string name="screen_item_geocode">地理编码</string>
+    <string name="screen_item_route">路线规划</string>
+
+    <!--    RouteScreen    -->
+    <string name="route_config_title">路线规划配置</string>
+    <string name="route_origin">起点</string>
+    <string name="route_destination">终点</string>
+    <string name="route_strategy">策略</string>
+    <string name="route_alternatives">备选</string>
+    <string name="route_waypoints">途经点</string>
+    <string name="route_avoid_title">路线规避</string>
+    <string name="route_avoid_tolls">收费</string>
+    <string name="route_avoid_highways">高速</string>
+    <string name="route_avoid_ferries">轮渡</string>
+    <string name="route_avoid_custom_area">区域</string>
+    <string name="route_start_button">开始算路</string>
+    <string name="route_strategy_fastest">最快</string>
+    <string name="route_strategy_shortest">最短</string>
+    <string name="route_strategy_eco">环保</string>
+    <string name="route_strategy_balanced">平衡</string>
+    <string name="route_mode_driving">标准驾车</string>
+    <string name="route_mode_truck">货车</string>
+    <string name="route_travel_mode">出行方式：</string>
+    <string name="route_vehicle_params_title">车辆参数配置</string>
+    <string name="route_vehicle_height">高度(m)</string>
+    <string name="route_vehicle_weight">重量(t)</string>
+    <string name="route_vehicle_length">长度(m)</string>
+    <string name="route_vehicle_payload_type">货物类型</string>
+    <string name="route_vehicle_payload_hint">例如: hazardousMaterials, explosives</string>
+    <string name="route_waypoint_format_error">途经点格式错误，请使用 [(lat,lng),...] 格式</string>
+    <string name="route_geojson_format_error">避开区域 GeoJSON 格式错误</string>
+    <string name="route_waypoint_placeholder">[(lat,lng),...]</string>
+    <string name="route_origin_dest_format_error">起终点坐标格式错误</string>
+
+    <!--    AttentionScreen  -->
+    <string name="attention_api_key_label">API Key</string>
+    <string name="attention_api_key_hint">输入 API Key</string>
+    <string name="attention_sha1_label">Signature SHA1</string>
+    <string name="attention_sha1_hint">应用签名 SHA1</string>
+    <string name="attention_confirm">确认</string>
+    <string name="attention_confirm_api_key">确认 API Key</string>
+    <string name="attention_confirm_sha1">确认 Signature SHA1</string>
+    <string name="attention_sdk_checkbox_title">应用到以下 SDK</string>
+    <string name="attention_sdk_search">搜索</string>
+    <string name="attention_sdk_route">路径规划</string>
+    <string name="attention_sdk_map">地图</string>
+    <string name="attention_verify_title">去验证</string>
+    <string name="attention_verify_map">去验证地图</string>
+    <string name="attention_verify_search">去验证搜索</string>
+    <string name="attention_verify_route">去验证路径规划</string>
+    <string name="attention_view_authorized_services">查看已授权服务</string>
+    <string name="attention_loading">请求中…</string>
+    <string name="attention_toast_enter_api_key">请输入 API Key</string>
+    <string name="attention_toast_enter_sha1">请输入 SHA1</string>
+    <string name="attention_toast_select_sdk_for_api_key">应用 API Key 时请至少勾选一个 SDK</string>
+    <string name="attention_toast_select_sdk_for_sha1">应用 Signature SHA1 时请至少勾选一个 SDK</string>
+    <string name="attention_toast_no_change">未变更（请检查勾选）</string>
+    <string name="attention_toast_updated_format">已更新: %s</string>
+    <string name="attention_toast_updated_with_errors_format">已更新: %1$s；失败: %2$s</string>
+    <string name="attention_toast_all_failed_format">失败: %s</string>
+    <string name="attention_toast_signature_default_format">%s签名已按默认</string>
+    <string name="attention_toast_auth_status_error_format">获取已授权服务失败: %s</string>
+    <string name="attention_sdk_name_map">地图</string>
+    <string name="attention_sdk_name_search_geocode">搜索/地理编码</string>
+    <string name="attention_sdk_name_route">路径规划</string>
+    <string name="attention_sdk_name_sha1_map">SHA1(地图)</string>
+    <string name="attention_sdk_name_sha1_search_geocode">SHA1(搜索/地理编码)</string>
+    <string name="attention_sdk_name_sha1_route">SHA1(路径规划)</string>
+
+    <!--    OverlayItemScreen   -->
+    <string name="overlay_item_marker">Marker</string>
+    <string name="overlay_item_marker_animation">Marker动画</string>
+    <string name="overlay_item_line">线</string>
+    <string name="overlay_item_polygon">面</string>
+    <string name="overlay_item_polygon_menu">多边形</string>
+    <string name="overlay_item_polygon_full_example">多边形完整示例</string>
+    <string name="overlay_item_circle">圆</string>
+    <string name="map_item_markerview">信息窗口</string>
+    <string name="overlay_item_geofence">地理围栏</string>
+    <string name="overlay_item_pick">Overlay拾取</string>
+    <string name="overlay_pick_hint">Ex / listener 与渲染 z-order 一致（自上而下）。后 add 的 layer group 在上层；本页先 Marker 后 Line。同组多 overlay 可用 engine.setOverlayZOrder。</string>
+    <string name="overlay_pick_at_marker">Marker 位置拾取</string>
+    <string name="overlay_pick_reset">重置场景</string>
+    <string name="overlay_pick_line_clickable">Line clickable</string>
+    <string name="overlay_pick_marker_clickable">Marker clickable</string>
+    <string name="overlay_pick_line_consume">Line listener 消费</string>
+    <string name="overlay_pick_marker_consume">Marker listener 消费</string>
+    <string name="overlay_pick_ex_result_title">Ex 拾取结果</string>
+    <string name="overlay_pick_no_result">尚未拾取，请点击地图或使用「Marker 位置拾取」。</string>
+    <string name="overlay_pick_tap_format">%1$s @ (%2$.5f, %3$.5f) screen=(%4$.1f, %5$.1f)</string>
+    <string name="overlay_pick_ex_empty">Ex hits：无命中</string>
+    <string name="overlay_pick_marker_wrapper">resolveHitTarget(MARKER)：%1$s</string>
+    <string name="overlay_pick_none">null</string>
+    <string name="overlay_pick_listener_log">Listener 事件</string>
+    <string name="overlay_pick_clear_log">清空</string>
+    <string name="overlay_pick_log_empty">暂无 listener 回调</string>
+    <string name="geofence_load_point">加载 Point 围栏</string>
+    <string name="geofence_load_polygon">加载 Polygon 围栏</string>
+    <string name="geofence_clear_all">清除所有覆盖物</string>
+    <string name="geofence_clear_marker">清除 Marker</string>
+    <string name="geofence_status_default">默认已加载多边形围栏，点击地图任意位置投放 Marker</string>
+
+
+    <!--    MapItemScreen-->
+    <string name="map_item_map_render">地图渲染</string>
+    <string name="map_sky_title">天空盒子</string>
+    <string name="map_sky_subtitle">高 zoom + 大 pitch 时顶部天空效果</string>
+    <string name="map_sky_tip">提示：拉到高 zoom (&gt;=18) 并双指 pitch，观察顶部天空开关效果。</string>
+    <string name="map_debug_on">开启调试</string>
+    <string name="map_debug_off">关闭调试</string>
+    <string name="map_item_map_control">地图视角控制</string>
+    <string name="map_item_map_gesture">地图手势</string>
+    <string name="map_item_map_gesture_control">地图手势控制</string>
+    <string name="map_item_gesture_coordination">手势协调（互斥/同时）</string>
+    <string name="gesture_coordination_section_title">手势协调</string>
+    <string name="gesture_coordination_allow_simultaneous">允许多种 Progressive 同时</string>
+    <string name="gesture_coordination_simultaneous_hint">关闭后仅单路 Progressive，互斥分组不生效</string>
+    <string name="gesture_coordination_custom_title">互斥分组（多选后点确定）</string>
+    <string name="gesture_coordination_confirm">确定</string>
+    <string name="gesture_coordination_custom_hint">将所选手势放入同一互斥集合；空选并确定可清空分组。未点确定前沿用地图默认互斥配置。</string>
+    <string name="gesture_type_scale">缩放</string>
+    <string name="gesture_type_rotate">旋转</string>
+    <string name="gesture_type_shove">倾斜</string>
+    <string name="gesture_type_sideways_shove">横向滑动</string>
+    <string name="gesture_type_move">平移 (Move)</string>
+    <string name="gesture_type_long_press">长按</string>
+    <string name="gesture_type_multi_finger_tap">多指点击</string>
+    <string name="map_item_location">定位控件</string>
+    <string name="map_item_compass">罗盘控件</string>
+    <string name="map_item_logo">logo控件</string>
+    <string name="logo_gravity_label">logo位置 (setLogoGravity)</string>
+    <string name="logo_gravity_top_end">右上 (TOP|END)</string>
+    <string name="logo_gravity_top_start">左上 (TOP|START)</string>
+    <string name="logo_gravity_bottom_end">右下 (BOTTOM|END)</string>
+    <string name="logo_gravity_bottom_start">左下 (BOTTOM|START)</string>
+    <string name="logo_gravity_top_center">顶部居中 (TOP|CENTER)</string>
+    <string name="logo_gravity_bottom_center">底部居中 (BOTTOM|CENTER)</string>
+    <string name="logo_gravity_middle_start">居中靠左 (Middle|START)</string>
+    <string name="logo_gravity_center">居中 (CENTER)</string>
+    <string name="logo_gravity_middle_end">居中靠右 (Middle|END)</string>
+    <string name="map_item_scale_bar">比例尺</string>
+    <string name="map_item_zoom">缩放控件</string>
+    <string name="map_item_map_event_listener">地图事件监听</string>
+    <string name="map_item_map_style">样式切换</string>
+    <string name="map_item_day_night_mode">日夜模式</string>
+    <string name="map_item_poi_click_center">Poi点击居中</string>
+
+    <!--    MapRenderScreen-->
+    <string name="map_style_load_error_network">地图加载失败，请检查网络连接后重试</string>
+    <string name="map_style_load_error_timeout">地图加载超时，请稍后重试</string>
+    <string name="map_style_load_error_unknown">地图样式加载失败，请稍后重试</string>
+    <string name="map_style_load_error_generic">地图样式加载失败：%1$s</string>
+    <string name="map_sky_description">高 zoom + 大 pitch 时顶部天空效果</string>
+    <string name="map_language_label">标签语言</string>
+    <string name="map_language_description">BCP 47 标签,名称字段不存在时回退到 name</string>
+    <string name="map_sky_hint">提示：拉到高 zoom (>=18) 并双指 pitch，观察顶部天空开关效果。</string>
+
+    <!--    DayNightScreen-->
+    <string name="day_night_title">日夜模式</string>
+    <string name="day_night_collapse">收起</string>
+    <string name="day_night_expand">展开</string>
+    <string name="day_night_enable_control">启用日夜模式控件</string>
+    <string name="day_night_gravity_label">按钮位置 (setDayNightModeGravity)</string>
+    <string name="day_night_gravity_top_end">右上 (TOP|END)</string>
+    <string name="day_night_gravity_top_start">左上 (TOP|START)</string>
+    <string name="day_night_gravity_bottom_end">右下 (BOTTOM|END)</string>
+    <string name="day_night_gravity_bottom_start">左下 (BOTTOM|START)</string>
+    <string name="day_night_gravity_top_center">顶部居中 (TOP|CENTER)</string>
+    <string name="day_night_gravity_bottom_center">底部居中 (BOTTOM|CENTER)</string>
+    <string name="day_night_gravity_middle_start">居中靠左 (Middle|START)</string>
+    <string name="day_night_gravity_center">居中 (CENTER)</string>
+    <string name="day_night_gravity_middle_end">居中靠右 (Middle|END)</string>
+
+    <!--    MapStyleScreen-->
+    <string name="map_style_label">样式 ID</string>
+    <string name="map_style_preload">预加载</string>
+    <string name="map_style_switch">切换</string>
+    <string name="map_item_double_tap_delay">双击延时</string>
+    <string name="map_item_zoom_center_mode">缩放中心模式</string>
+    <string name="map_item_double_tap_zoom_factor">双击缩放因子</string>
+    <string name="map_item_gesture_threshold">手势阈值阻力</string>
+    <string name="map_item_fling_duration">惯性滑动时长</string>
+    <string name="map_item_rotate_bearing_range">旋转朝向范围</string>
+    <string name="gesture_threshold_sheet_title">手势阻力与阈值配置</string>
+    <string name="gesture_threshold_pan_title">平移手势</string>
+    <string name="gesture_threshold_rotate_title">旋转手势</string>
+    <string name="gesture_threshold_shove_title">倾斜手势 (Shove)</string>
+    <string name="gesture_threshold_trigger_label">触发阈值 (像素)</string>
+    <string name="gesture_threshold_resistance_label">阻力系数</string>
+    <string name="gesture_threshold_px_format">%1$.1f px</string>
+    <string name="gesture_threshold_value_format">%1$.1f</string>
+    <string name="gesture_threshold_hint">说明：\n1. 阈值：触发手势所需的最小物理位移像素。\n2. 阻力：触发后手势跟随手指移动的比例系数。阻力越大，地图响应越缓慢、稳重。</string>
+    <string name="map_item_zoom_animation_duration">缩放动画时长</string>
+    <string name="double_tap_zoom_factor_label">双击缩放因子: %1$.1f</string>
+    <string name="double_tap_zoom_factor_description">说明：默认 2.0 放大 1 级，4.0 放大 2 级。最小 1.1，最大 5.0。</string>
+    <string name="double_tap_zoom_level_label">缩放级别: %1$.2f</string>
+    <string name="double_tap_zoom_hint">注意：如果中途多次双击打断正在进行的缩放，日志里观察到的 zoom 变化达不到「按缩放因子完整执行多次」的理论增量，一般是预期行为；若要验证因子是否生效，更适合：单次双击、等动画完全停稳后再看前后 zoom，或减少连击打断。</string>
+    <string name="double_tap_zoom_log_title">日志显示Zoom变化:</string>
+    <string name="double_tap_zoom_clear_log">清除</string>
+    <string name="map_item_two_finger_tap_zoom">启用双击缩回</string>
+    <string name="map_item_double_tap_tilt_reset">双击倾斜复位</string>
+    <string name="rotate_bearing_range_sheet_title">双指旋转：朝向范围</string>
+    <string name="rotate_bearing_range_current">当前朝向: %1$.1f°</string>
+    <string name="rotate_bearing_range_min">最小朝向</string>
+    <string name="rotate_bearing_range_max">最大朝向</string>
+    <string name="rotate_bearing_range_slider_label">%1$s: %2$.1f°</string>
+    <string name="rotate_bearing_range_hint">与 CameraPosition.bearing 一致（0–360°，顺时针自北）。最小 0°、最大 360° 表示不限制；其它区间会限制双指旋转与旋转惯性，并在手势开始时将朝向钳到范围内。</string>
+
+    <!--    LocationScreen-->
+    <string name="location_enable_component">启用定位组件</string>
+    <string name="location_pulse_animation">脉冲动画</string>
+    <string name="location_camera_mode">相机跟踪模式</string>
+    <string name="location_render_mode">渲染模式</string>
+    <string name="location_move_to_current">移动到当前位置</string>
+    <string name="location_no_location">无法获取当前位置</string>
+    <string name="location_show_button">显示定位按钮</string>
+    <string name="location_button_gravity">定位按钮位置 (setLocationViewGravity)</string>
+    <string name="location_view_size_label">定位按钮尺寸 (dp): %1$d</string>
+    <string name="location_gravity_top_end">右上 (TOP|END)</string>
+    <string name="location_gravity_top_start">左上 (TOP|START)</string>
+    <string name="location_gravity_bottom_end">右下 (BOTTOM|END)</string>
+    <string name="location_gravity_bottom_start">左下 (BOTTOM|START)</string>
+    <string name="location_gravity_top_center">顶部居中 (TOP|CENTER)</string>
+    <string name="location_gravity_bottom_center">底部居中 (BOTTOM|CENTER)</string>
+    <string name="location_gravity_middle_start">居中靠左 (Middle|START)</string>
+    <string name="location_gravity_center">居中 (CENTER)</string>
+    <string name="location_gravity_middle_end">居中靠右 (Middle|END)</string>
+    <string name="location_accuracy_format">精度圈透明度: %1$s</string>
+
+    <!--    MapControlScreen-->
+    <string name="change_camera">调整</string>
+
+    <!--    MapGestureScreen-->
+    <string name="enable_all_gesture">启用所有手势</string>
+    <string name="enable_tilt_gesture">启用倾斜手势</string>
+    <string name="enable_rotate_gesture">启用旋转手势</string>
+    <string name="enable_double_click_zoom_gesture">启用双击放大手势</string>
+    <string name="enable_double_finger_gesture">启用双指缩放手势</string>
+    <string name="enable_two_finger_tap_zoom">启用双指点击缩放</string>
+    <string name="enable_scroll_gesture">启用平移手势</string>
+    <string name="enable_double_tap_tilt_reset">启用双击倾斜复位</string>
+    <string name="enable_custom_double_tap">启用自定义双击检测</string>
+    <string name="double_tap_delay_label">双击延时: %1$d ms</string>
+    <string name="fling_duration_label">惯性滑动基础时长: %1$d ms</string>
+    <string name="inertia_scroll_enabled_label">启用惯性滑动</string>
+
+    <!--    overlay功能项 overlay_item_marker-->
+    <string name="overlay_item_marker_switch_text">点击地图添加Marker</string>
+    <string name="overlay_item_marker_switch_text_contentDescription">点击地图添加Marker开关</string>
+
+    <!--    LineScreen-->
+    <string name="isClosed">是否闭合</string>
+    <string name="line_vertex_array">顶点数组 [[lat,lng],...]</string>
+    <string name="line_stroke_color">线颜色</string>
+    <string name="line_opacity">不透明度</string>
+    <string name="line_width">线宽 (px)</string>
+    <string name="line_dash_pattern">虚线模式 (例如: 2,2)</string>
+    <string name="line_draggable">可拖拽</string>
+    <string name="line_glow_enabled">启用发光</string>
+    <string name="line_glow_color">发光颜色</string>
+    <string name="line_glow_radius">发光半径 (1～30)</string>
+    <string name="line_draw">绘制</string>
+
+    <!--    MapEventListenerScreen-->
+    <string name="map_event_listener_sheet_title">事件监听控制</string>
+    <string name="map_event_listener_camera_move">地图视角移动中</string>
+    <string name="map_event_listener_map_long_click">地图长按</string>
+    <string name="map_event_listener_fling">快速滑动</string>
+    <string name="map_event_listener_camera_idle">视角停止移动</string>
+    <string name="map_event_listener_camera_move_started">视角开始移动</string>
+    <string name="map_event_listener_map_click">地图点击事件</string>
+    <string name="map_event_listener_log_title">日志</string>
+    <string name="map_event_listener_clear_log">清空日志</string>
+
+    <!--    ZoomScreen-->
+    <string name="zoom_show_buttons">显示缩放按钮</string>
+    <string name="zoom_show_level">显示缩放级别</string>
+    <string name="zoom_gravity_label">缩放按钮位置 (setZoomButtonsGravity)</string>
+    <string name="zoom_gravity_top_end">右上 (TOP|END)</string>
+    <string name="zoom_gravity_top_start">左上 (TOP|START)</string>
+    <string name="zoom_gravity_bottom_end">右下 (BOTTOM|END)</string>
+    <string name="zoom_gravity_bottom_start">左下 (BOTTOM|START)</string>
+    <string name="zoom_gravity_top_center">顶部居中 (TOP|CENTER)</string>
+    <string name="zoom_gravity_bottom_center">底部居中 (BOTTOM|CENTER)</string>
+    <string name="zoom_gravity_middle_start">居中靠左 (Middle|START)</string>
+    <string name="zoom_gravity_center">居中 (CENTER)</string>
+    <string name="zoom_gravity_middle_end">居中靠右 (Middle|END)</string>
+    <string name="zoom_button_size_label">按钮尺寸 (setZoomButtonsSize)</string>
+    <string name="zoom_precision_label">缩放级别精度 (setZoomLevelFormat)</string>
+    <string name="zoom_precision_decimal_unit">位小数</string>
+    <string name="zoom_level_position_label">缩放级别位置 (setZoomLevelPosition)</string>
+    <string name="zoom_level_position_top">上 (文本 / + / -)</string>
+    <string name="zoom_level_position_middle">中 (+ / 文本 / -)</string>
+    <string name="zoom_level_position_bottom">下 (+ / - / 文本)</string>
+
+    <!--    CompassScreen-->
+    <string name="compass_show_compass">显示指南针</string>
+    <string name="compass_fade_when_facing_north">正北自动隐藏</string>
+    <string name="compass_rotate_clockwise">顺时针旋转</string>
+    <string name="compass_gravity_label">指南针位置 (setCompassGravity)</string>
+    <string name="compass_gravity_top_end">右上 (TOP|END)</string>
+    <string name="compass_gravity_top_start">左上 (TOP|START)</string>
+    <string name="compass_gravity_top_center">顶部居中 (TOP|CENTER)</string>
+    <string name="compass_gravity_middle_left">左中 (MIDDLE-LEFT)</string>
+    <string name="compass_gravity_center">居中 (CENTER)</string>
+    <string name="compass_gravity_middle_right">右中 (MIDDLE-RIGHT)</string>
+    <string name="compass_gravity_bottom_end">右下 (BOTTOM|END)</string>
+    <string name="compass_gravity_bottom_start">左下 (BOTTOM|START)</string>
+    <string name="compass_gravity_bottom_center">底部居中 (BOTTOM|CENTER)</string>
+    <string name="compass_size_label">罗盘尺寸 (dp): %1$d</string>
+
+    <!--    FillScreen-->
+    <string name="fill_input_coordinates_label">输入多边形坐标</string>
+    <string name="fill_color_label">填充颜色</string>
+    <string name="fill_opacity_label">透明度0～1</string>
+    <string name="fill_stroke_color_label">描边颜色</string>
+    <string name="fill_stroke_width_label">边框宽度</string>
+    <string name="fill_stroke_opacity_label">描边透明度0～1</string>
+    <string name="fill_stroke_dasharray_label">边框虚线数组</string>
+    <string name="fill_pattern_label">填充类型</string>
+    <string name="fill_pattern_image_label">图案图片 ID</string>
+    <string name="fill_translate_x_label">平移 X</string>
+    <string name="fill_translate_y_label">平移 Y</string>
+    <string name="fill_translate_anchor_label">平移锚点</string>
+    <string name="fill_antialias_label">填充抗锯齿</string>
+    <string name="fill_draggable_label">是否可拖拽</string>
+    <string name="fill_blend_mode_label">混合模式</string>
+    <string name="fill_draw_button">绘制</string>
+
+    <string name="fill_pattern_solid">纯色 solid</string>
+    <string name="fill_pattern_hatch">斜线 hatch</string>
+    <string name="fill_pattern_cross">十字 cross</string>
+    <string name="fill_pattern_dot">点状 dot</string>
+    <string name="fill_pattern_image">图片 image</string>
+
+    <string name="fill_blend_normal">正常 normal</string>
+    <string name="fill_blend_multiply">正片叠底 multiply</string>
+    <string name="fill_blend_screen">滤色 screen</string>
+    <string name="fill_blend_overlay">叠加 overlay</string>
+
+    <string name="fill_anchor_map">map（相对地图）</string>
+    <string name="fill_anchor_viewport">viewport（相对视口）</string>
+
+    <string name="fill_pattern_image_garden">garden</string>
+    <string name="fill_pattern_image_harbor">harbor</string>
+    <string name="fill_paste_button">粘贴</string>
+
+    <!--    CircleScreen-->
+    <string name="circle_list_basic">基础绘制</string>
+    <string name="circle_list_geodesic">等距模式</string>
+    <string name="circle_list_draggable">可拖拽</string>
+    <string name="circle_list_inner_shadow">启用内阴影</string>
+    <string name="circle_list_outer_glow">启用外发光</string>
+    <string name="circle_list_scan">扫描动画</string>
+    <string name="circle_list_pulse">脉动动画</string>
+    <string name="circle_list_radius_breath">半径呼吸动画</string>
+    <string name="circle_input_latlng_label">中心点坐标 (lat,lng)</string>
+    <string name="circle_input_radius_pixel">半径（像素）</string>
+    <string name="circle_input_radius_meter">半径（米）</string>
+    <string name="circle_input_fill_color">填充颜色</string>
+    <string name="circle_input_fill_opacity">填充透明度 (0~1)</string>
+    <string name="circle_input_stroke_color">描边颜色</string>
+    <string name="circle_input_stroke_width">描边宽度</string>
+    <string name="circle_input_stroke_opacity">描边透明度 (0~1)</string>
+    <string name="circle_switch_geodesic">等距模式 (Geodesic)</string>
+    <string name="circle_geodesic_hint">提示：等距模式开启后，内阴影与外发光由引擎忽略，不会生效。</string>
+    <string name="circle_switch_draggable">可拖拽 (Draggable)</string>
+    <string name="circle_switch_inner_shadow">启用内阴影</string>
+    <string name="circle_inner_shadow_blur">模糊度</string>
+    <string name="circle_inner_shadow_hint">说明：内阴影颜色与不透明度与上方「填充颜色」「填充透明度」一致。</string>
+    <string name="circle_switch_outer_glow">启用外发光</string>
+    <string name="circle_glow_color">发光颜色</string>
+    <string name="circle_glow_radius">发光半径 (1～30)</string>
+    <string name="circle_switch_scan">扫描 (Scan)</string>
+    <string name="circle_scan_speed">扫描速度 (ms/圈)</string>
+    <string name="circle_switch_pulse">脉动 (Pulse)</string>
+    <string name="circle_switch_radius">半径呼吸 (Radius)</string>
+    <string name="circle_radius_range_min">起始半径</string>
+    <string name="circle_radius_range_max">目标半径</string>
+    <string name="circle_radius_duration">周期 (ms)</string>
+    <string name="circle_animation_start">开始动画</string>
+    <string name="circle_animation_stop">结束动画</string>
+    <string name="circle_draw">绘制</string>
+    <string name="circle_toast_draw_first">请先点击「绘制」添加圆</string>
+    <string name="circle_toast_invalid_range">请填写有效的半径范围</string>
+    <string name="circle_scan_sector_angle">扇形张角 (度, 0~90)</string>
+    <string name="circle_scan_sector_color">扇形颜色 (空=填充色)</string>
+    <string name="circle_scan_rotation_period">旋转周期 (ms/圈)</string>
+    <string name="circle_scan_icon_url_id">图标地址对应ID</string>
+    <string name="circle_scan_icon_url_hint">注册到 Style 的图标名</string>
+    <string name="circle_scan_add_by_url">按地址添加</string>
+    <string name="circle_toast_style_not_ready">地图样式未就绪</string>
+    <string name="circle_toast_icon_registered">底图已注册：%1$s</string>
+    <string name="circle_toast_icon_failed">图标添加失败：%1$s</string>
+    <string name="circle_toast_invalid_scan_speed">请填写有效的旋转周期</string>
+    <string name="circle_toast_invalid_scan_angle">请填写有效的扇形张角</string>
+    <string name="circle_toast_click_overlay">点击了圆: %1$s</string>
+    <string name="circle_toast_long_click_overlay">长按了圆: %1$s</string>
+    <string name="circle_toast_drag_finished">拖拽结束: %1$s</string>
+
+    <!--    SearchScreen-->
+    <string name="search_tab_text">文本搜索</string>
+    <string name="search_tab_nearby">附近搜索</string>
+    <string name="search_tab_suggest">交互式搜索</string>
+    <string name="search_tab_detail">地点详情</string>
+    <string name="search_action_search">搜索</string>
+    <string name="search_placeholder">搜索地点...</string>
+    <string name="search_hint_type">如：hotel（仅支持一种类型）</string>
+    <string name="search_label_type">type</string>
+    <string name="search_label_language">language</string>
+    <string name="search_label_region">region</string>
+    <string name="search_label_pageSize">pageSize</string>
+    <string name="search_label_rank">rank</string>
+    <string name="search_label_pageToken">pageToken</string>
+    <string name="search_label_place_id">placeId</string>
+    <string name="search_hint_language">IETF 语言标签，默认 zh</string>
+    <string name="search_hint_region">ccTLD 双字符，如：BR</string>
+    <string name="search_hint_page_size">1～20，默认 20</string>
+    <string name="search_hint_rank">类别查询可用</string>
+    <string name="search_hint_page_token">使用上次响应的 nextPageToken</string>
+    <string name="search_hint_place_id">从搜索结果/建议中获得，例如 places/{id}</string>
+    <string name="search_advanced_more">更多参数</string>
+    <string name="search_advanced_less">收起参数</string>
+    <string name="search_action_get_detail">获取地点详情</string>
+    <string name="search_loading">请求中…</string>
+    <string name="search_fetch_photo">获取图片</string>
+    <string name="search_label_photo_name">photoName</string>
+    <string name="search_hint_photo_name">places/{placeId}/photos/{photoId}</string>
+    <string name="search_photo_uri">图片 URI</string>
+    <string name="search_label_types">types</string>
+    <string name="search_hint_types">逗号分隔，如：hotel,atm</string>
+    <string name="search_label_result_limit">resultLimit</string>
+    <string name="search_hint_result_limit">1～20，默认 20</string>
+    <string name="search_nearby_tip">输入中心点坐标，或切换到地图视图拖动地图确定位置</string>
+    <string name="search_label_center">center(lat,lng)</string>
+    <string name="search_center_hint">如：25.195,55.275</string>
+    <string name="search_radius_placeholder">半径（米）</string>
+    <string name="search_label_radius">radius(m)</string>
+    <string name="search_error_invalid_number">请输入有效数字</string>
+    <string name="search_error_range_0_50000">范围 0-50000</string>
+    <string name="search_poi_type_placeholder">地点类型（可选）</string>
+    <string name="search_location_label">locationBias / locationLimit</string>
+    <string name="search_location_hint">二者互斥；都不设默认用定位中心</string>
+    <string name="search_label_northeast">northeast(lat,lng)</string>
+    <string name="search_label_southwest">southwest(lat,lng)</string>
+    <string name="search_label_circle_center">center(lat,lng)</string>
+    <string name="search_hint_circle_radius">0～50000</string>
+    <string name="search_detail_title">地点详情</string>
+    <string name="search_detail_loading_failed">加载失败，请重试</string>
+    <string name="search_detail_name">名称</string>
+    <string name="search_detail_address">地址</string>
+    <string name="search_detail_phone">电话</string>
+    <string name="search_detail_type_label">类型</string>
+    <string name="search_detail_coordinate">坐标</string>
+    <string name="search_detail_coordinate_none">坐标为空</string>
+    <string name="search_detail_summary">简介</string>
+    <string name="search_api_response_title">接口返回</string>
+    <string name="search_action_collapse">收起</string>
+    <string name="search_action_expand">展开</string>
+    <string name="search_close">关闭</string>
+    <string name="search_map_view">地图视图</string>
+    <string name="search_list_view">列表视图</string>
+    <string name="search_suggest_placeholder">输入关键词获取建议…</string>
+    <string name="search_load_more">加载更多</string>
+    <string name="search_label_suggest_types">types</string>
+    <string name="search_hint_suggest_types">逗号分隔，如：hotel,atm</string>
+    <string name="search_photo_section">图片</string>
+
+    <!--    MarkerViewScreen    -->
+    <string name="markerview_add">添加</string>
+    <string name="markerview_remove">移除</string>
+    <string name="markerview_auto_close_on">自动关闭: 开</string>
+    <string name="markerview_auto_close_off">自动关闭: 关</string>
+    <string name="markerview_line1_label">第一行文案</string>
+    <string name="markerview_line2_label">第二行文案</string>
+    <string name="markerview_corner_radius_format">圆角: %1$dpx</string>
+    <string name="markerview_max_width_format">最大宽度: %1$dpx</string>
+    <string name="markerview_bg_color_label">背景色</string>
+    <string name="markerview_border_color_label">边框色</string>
+    <string name="markerview_border_width_format">边框宽度: %1$dpx</string>
+    <string name="markerview_rich_text_label">HTML 富文本内容</string>
+    <string name="markerview_rich_text_hint">输入 HTML</string>
+    <string name="markerview_add_rich_text">添加富文本</string>
+
+    <!--    GeocodeScreen    -->
+    <string name="geocode_label_language">language</string>
+    <string name="geocode_label_region">region</string>
+    <string name="geocode_label_address">address</string>
+    <string name="geocode_label_components">components</string>
+    <string name="geocode_label_location_bias">locationBias: Rectangle</string>
+    <string name="geocode_label_northeast">northeast (lat,lng)</string>
+    <string name="geocode_label_southwest">southwest (lat,lng)</string>
+    <string name="geocode_label_location">location (lat,lng)</string>
+    <string name="geocode_label_result_type">resultType (用 | 分隔)</string>
+    <string name="geocode_label_location_type">locationType (可选, 用 | 分隔)</string>
+    <string name="geocode_submit">发送请求</string>
+    <string name="geocode_loading">请求中...</string>
+    <string name="geocode_api_response_title">接口返回</string>
+    <string name="geocode_collapse">收起</string>
+    <string name="geocode_expand">展开</string>
+</resources>
