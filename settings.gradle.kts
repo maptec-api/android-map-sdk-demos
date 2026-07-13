@@ -11,6 +11,24 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+/** 从根目录 local.properties 读取（已 gitignore）；不存在或未配置时返回 null。 */
+fun readLocalProperty(key: String): String? {
+    val file = settings.rootDir.resolve("local.properties")
+    if (!file.isFile) return null
+    return file.readLines()
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.startsWith("#") && it.contains("=") }
+        .associate {
+            val idx = it.indexOf('=')
+            it.substring(0, idx).trim() to it.substring(idx + 1).trim()
+        }[key]
+        ?.takeIf { it.isNotEmpty() }
+}
+
+val mavenUsername = readLocalProperty("MAVEN_USERNAME")
+val mavenPassword = readLocalProperty("MAVEN_PASSWORD")
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -23,11 +41,13 @@ dependencyResolutionManagement {
         }
         maven {
             url = uri(settings.extra["mavenSnapshotsUrl"] as String)
-            credentials {
-                username = settings.extra["mavenUsername"] as String?
-                password = settings.extra["mavenPassword"] as String?
+            // 仅当 local.properties 中同时配置了用户名和密码时才附加 credentials
+            if (!mavenUsername.isNullOrBlank() && !mavenPassword.isNullOrBlank()) {
+                credentials {
+                    username = mavenUsername
+                    password = mavenPassword
+                }
             }
-
         }
     }
 }

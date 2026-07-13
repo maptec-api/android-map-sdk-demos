@@ -9,3 +9,7 @@ sdk.dir=/path/to/Android/sdk
 # Maptec Demo credentials (optional; defaults to placeholders if omitted)
 MAPTEC_API_KEY=YOUR_API_KEY
 MAPTEC_SIGNATURE_SHA1=YOUR_APP_SIGNATURE_SHA1
+
+# Maptec Maven credentials (optional; leave empty / omit if not needed)
+# MAVEN_USERNAME=
+# MAVEN_PASSWORD=
