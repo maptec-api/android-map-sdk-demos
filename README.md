@@ -53,23 +53,17 @@ cd mapSdkDemo
 
 3. 配置 API Key 与应用签名 SHA1。
 
-复制示例文件并填写真实值（`local.properties` 已在 `.gitignore`，不会提交）：
+可以直接运行 App 后，在「鉴权配置」页面输入 API Key 和 SHA1；也可以在本地资源文件中配置默认测试值。对外发布或提交代码时，请不要提交真实 API Key。
 
-```bash
-cp local.properties.example local.properties
+本地调试可创建或修改：
+
+```xml
+<!-- demo/src/main/res/values/maptec.xml -->
+<resources>
+    <string name="maptec_apiKey">YOUR_API_KEY</string>
+    <string name="signature_sha1">YOUR_APP_SIGNATURE_SHA1</string>
+</resources>
 ```
-
-在 `local.properties` 中填写：
-
-```properties
-MAPTEC_API_KEY=你的API Key
-MAPTEC_SIGNATURE_SHA1=你的SHA1
-```
-
-构建时由 `demo/build.gradle.kts` 通过 `resValue` 注入为 `R.string.maptec_apiKey` / `R.string.signature_sha1`。  
-未配置时使用占位符 `YOUR_API_KEY` / `YOUR_APP_SIGNATURE_SHA1`，不会崩溃；也可在 App 内「鉴权配置」页手动输入。
-
-**不要将 `local.properties` 提交到 Git。**
 
 4. 运行 Demo。
 
@@ -87,25 +81,7 @@ MAPTEC_SIGNATURE_SHA1=你的SHA1
 
 ## API Key 配置说明
 
-地图、搜索、地理编码和路线规划服务都需要有效的 API Key。
-
-### 本地默认 Key（推荐）
-
-1. 复制 `local.properties.example` 为 `local.properties`
-2. 填写：
-
-```properties
-MAPTEC_API_KEY=你的API Key
-MAPTEC_SIGNATURE_SHA1=你的SHA1
-```
-
-3. Sync / 重新构建后，Demo 通过 `R.string.maptec_apiKey`、`R.string.signature_sha1` 读取（与改前用法相同）
-
-`local.properties` 已在 `.gitignore` 中，**请勿提交到仓库**。
-
-### 运行时配置
-
-也可以在 App「鉴权配置」页输入 Key，并按需应用到不同 SDK：
+地图、搜索、地理编码和路线规划服务都需要有效的 API Key。Demo 支持在运行时输入 Key，并按需应用到不同 SDK：
 
 ```kotlin
 MapSDK.setApiKey(apiKey)
@@ -114,7 +90,7 @@ GeocodeService.setApiKey(apiKey)
 RouteService.setApiKey(apiKey)
 ```
 
-如果 Key 绑定了 Android 应用签名，还需要配置 SHA1：
+如果你的 Key 绑定了 Android 应用签名，还需要配置 SHA1：
 
 ```kotlin
 MapSDK.setSignatureSha1(signatureSha1)

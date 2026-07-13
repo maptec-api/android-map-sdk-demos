@@ -20,13 +20,13 @@ class DemoApplication: Application() {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.USE_LOG) {
-            LoggerFactory.initialize(this, LogLevel.VERBOSE)
-        }
+        // Debug（USE_LOG=true）：VERBOSE；Release（USE_LOG=false）：NONE，关闭详细日志
+        val logLevel = if (BuildConfig.USE_LOG) LogLevel.VERBOSE else LogLevel.NONE
+        LoggerFactory.initialize(this, logLevel)
 
-        MapSDK.getInstance(applicationContext,null).initialize()
+        MapSDK.getInstance(applicationContext, null).initialize()
 
-     //   initRaphael(applicationContext)
+        // initRaphael(applicationContext)
     }
 }
 

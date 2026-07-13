@@ -7,23 +7,6 @@ plugins {
 val useSource = (project.findProperty("useSource") as? String) != "false"
 val useLog = (project.findProperty("useLog") as? String) != "false"
 
-/** 从根目录 local.properties 读取本地密钥（该文件已 gitignore，勿提交）。 */
-fun readLocalProperty(key: String): String? {
-    val file = rootProject.file("local.properties")
-    if (!file.isFile) return null
-    return file.readLines()
-        .map { it.trim() }
-        .filter { it.isNotEmpty() && !it.startsWith("#") && it.contains("=") }
-        .associate {
-            val idx = it.indexOf('=')
-            it.substring(0, idx).trim() to it.substring(idx + 1).trim()
-        }[key]
-        ?.takeIf { it.isNotEmpty() }
-}
-
-val maptecApiKey = readLocalProperty("MAPTEC_API_KEY") ?: "YOUR_API_KEY"
-val maptecSignatureSha1 = readLocalProperty("MAPTEC_SIGNATURE_SHA1") ?: "YOUR_APP_SIGNATURE_SHA1"
-
 android {
     namespace = "com.maptec.applied.demo"
     compileSdk = 36
@@ -42,12 +25,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testProguardFiles("proguard-test-rules.pro")
-
-        buildConfigField("boolean", "USE_LOG", "${useLog}")
-
-        // 由 local.properties 注入；未配置时使用占位符，业务代码仍通过 R.string 读取
-        resValue("string", "maptec_apiKey", maptecApiKey)
-        resValue("string", "signature_sha1", maptecSignatureSha1)
     }
 
     signingConfigs {
@@ -63,6 +40,8 @@ android {
         debug {
             isJniDebuggable = true
             isDebuggable = true
+            // Debug 默认开启详细日志；可用 -PuseLog=false 临时关闭
+            buildConfigField("boolean", "USE_LOG", "${useLog}")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
@@ -75,9 +54,13 @@ android {
 
         }
         release {
+            // Demo 默认关闭 R8，方便阅读和调试。
+            // 正式项目建议根据业务需要开启代码压缩和混淆。
             isMinifyEnabled = false
             isJniDebuggable = false
             isDebuggable = false
+            // Release 强制关闭详细日志，不受 -PuseLog 影响
+            buildConfigField("boolean", "USE_LOG", "false")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             externalNativeBuild {
                 cmake {
