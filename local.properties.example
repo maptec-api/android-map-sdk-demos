@@ -1,0 +1,11 @@
+## This file must *NOT* be checked into Version Control Systems.
+# Copy to local.properties and fill in your values:
+#
+#   cp local.properties.example local.properties
+#
+# Android SDK path (required by Android Studio / Gradle)
+sdk.dir=/path/to/Android/sdk
+
+# Maptec Demo credentials (optional; defaults to placeholders if omitted)
+MAPTEC_API_KEY=YOUR_API_KEY
+MAPTEC_SIGNATURE_SHA1=YOUR_APP_SIGNATURE_SHA1

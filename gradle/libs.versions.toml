@@ -42,12 +42,6 @@ navigationCompose = "2.7.5"
 
 # MapTec AAR Versions
 mapsdk = "1.0.0"
-mapengineGesture = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
-route = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
-search = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
-gpsProvider = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
-javaBase = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
-
 
 [libraries]
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
@@ -119,11 +113,7 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 
 # MapTec AARs（对外仅暴露 mapsdk；其余为 mapsdk 传递依赖）
 maptec-mapsdk = { group = "com.maptec.applied", name = "mapsdk", version.ref = "mapsdk" }
-maptec-mapengine-gesture = { group = "com.maptec.applied", name = "mapengine-gesture", version.ref = "mapengineGesture" }
-maptec-route = { group = "com.maptec.applied", name = "route", version.ref = "route" }
-maptec-search = { group = "com.maptec.applied", name = "search", version.ref = "search" }
-maptec-gps-provider = { group = "com.maptec.applied", name = "GpsProvider", version.ref = "gpsProvider" }
-maptec-javaBase = { group = "com.maptec.applied", name = "java-base", version.ref = "javaBase" }
+
 
 [plugins]
 nexusPublishPlugin = { id = "io.github.gradle-nexus.publish-plugin", version = "2.0.0" }
