@@ -3,16 +3,11 @@ package com.maptec.applied.demo.ui.screens.web_services.search
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -31,7 +26,7 @@ import com.maptec.applied.demo.R
 import com.maptec.applied.search.model.response.Place
 
 /**
- * 搜索结果列表
+ * 搜索结果列表 —— 使用 Column 而非 LazyColumn，以便参与外层整页滚动。
  */
 @Composable
 fun SearchResultsList(
@@ -42,41 +37,32 @@ fun SearchResultsList(
     isLoadingMore: Boolean = false,
     onLoadMore: () -> Unit = {},
 ) {
-    Card(
+    Column(
         modifier = modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            items(places) { place ->
-                PlaceItem(
-                    place = place,
-                    onClick = { onPlaceClick(place) },
-                )
-            }
-            if (canLoadMore || isLoadingMore) {
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(
-                        onClick = onLoadMore,
-                        enabled = !isLoadingMore,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        if (isLoadingMore) {
-                            CircularProgressIndicator(
-                                strokeWidth = 2.dp,
-                                modifier = Modifier.heightIn(max = 18.dp),
-                            )
-                        } else {
-                            Text(stringResource(R.string.search_load_more))
-                        }
-                    }
+        places.forEach { place ->
+            PlaceItem(
+                place = place,
+                onClick = { onPlaceClick(place) },
+            )
+        }
+        if (canLoadMore || isLoadingMore) {
+            Spacer(modifier = Modifier.height(2.dp))
+            Button(
+                onClick = onLoadMore,
+                enabled = !isLoadingMore,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                if (isLoadingMore) {
+                    CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.heightIn(max = 18.dp),
+                    )
+                } else {
+                    Text(stringResource(R.string.search_load_more))
                 }
             }
         }

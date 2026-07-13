@@ -99,9 +99,7 @@ fun RouteOverlayScreen(
         }
     }
 
-    var avoidTolls by remember { mutableStateOf(false) }
     var avoidHighways by remember { mutableStateOf(false) }
-    var avoidFerries by remember { mutableStateOf(false) }
     var avoidCustomArea by remember { mutableStateOf(false) }
 
     val initialAvoidPolygonJson =
@@ -119,7 +117,6 @@ fun RouteOverlayScreen(
     val strategies = listOf(
         STRATEGY_FASTEST to stringResource(R.string.route_strategy_fastest),
         STRATEGY_SHORTEST to stringResource(R.string.route_strategy_shortest),
-        STRATEGY_ECO to stringResource(R.string.route_strategy_eco),
         STRATEGY_BALANCED to stringResource(R.string.route_strategy_balanced),
     )
 
@@ -174,7 +171,7 @@ fun RouteOverlayScreen(
                             .padding(bottom = 12.dp)
                     )
                     // 起点单独一行
-                    TextField(
+                    OutlinedTextField(
                         value = start,
                         onValueChange = { start = it },
                         label = {
@@ -188,13 +185,21 @@ fun RouteOverlayScreen(
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                             .testTag("origin_input"),
-                        textStyle = MaterialTheme.typography.bodySmall,
+                        textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            disabledContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                        ),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Ascii
                         )
                     )
                     // 终点单独一行
-                    TextField(
+                    OutlinedTextField(
                         value = destination,
                         onValueChange = { destination = it },
                         label = {
@@ -208,7 +213,15 @@ fun RouteOverlayScreen(
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                             .testTag("destination_input"),
-                        textStyle = MaterialTheme.typography.bodySmall,
+                        textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            disabledContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                        ),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii)
                     )
                     // 策略、出行方式、备选
@@ -251,7 +264,7 @@ fun RouteOverlayScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TextField(
+                        OutlinedTextField(
                             value = waypointLat,
                             onValueChange = { waypointLat = it },
                             label = {
@@ -265,10 +278,18 @@ fun RouteOverlayScreen(
                                 .weight(1f)
                                 .padding(end = 4.dp)
                                 .testTag("waypoint_lat_input"),
-                            textStyle = MaterialTheme.typography.bodySmall,
+                            textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                disabledContainerColor = Color.White,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                            ),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                         )
-                        TextField(
+                        OutlinedTextField(
                             value = waypointLng,
                             onValueChange = { waypointLng = it },
                             label = {
@@ -282,7 +303,15 @@ fun RouteOverlayScreen(
                                 .weight(1f)
                                 .padding(horizontal = 4.dp)
                                 .testTag("waypoint_lng_input"),
-                            textStyle = MaterialTheme.typography.bodySmall,
+                            textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
+                                disabledContainerColor = Color.White,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                            ),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                         )
                         Button(
@@ -308,7 +337,7 @@ fun RouteOverlayScreen(
                     }
 
                     // 直接途经点格式输入（支持直接粘贴 [(lat,lng),...] 格式）
-                    TextField(
+                    OutlinedTextField(
                         value = waypoints,
                         onValueChange = { waypoints = it },
                         label = {
@@ -322,7 +351,15 @@ fun RouteOverlayScreen(
                             .padding(top = 8.dp)
                             .testTag("waypoints_input"),
                         singleLine = true,
-                        textStyle = MaterialTheme.typography.bodySmall
+                        textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            disabledContainerColor = Color.White,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                        ),
                     )
 
                     // 显示已添加的途经点列表
@@ -409,26 +446,12 @@ fun RouteOverlayScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     AvoidOverlayItem(
-                        stringResource(R.string.route_avoid_tolls),
-                        avoidTolls,
-                        Modifier
-                            .fillMaxWidth()
-                            .testTag("avoid_tolls_item")
-                    ) { avoidTolls = it }
-                    AvoidOverlayItem(
                         stringResource(R.string.route_avoid_highways),
                         avoidHighways,
                         Modifier
                             .fillMaxWidth()
                             .testTag("avoid_highways_item")
                     ) { avoidHighways = it }
-                    AvoidOverlayItem(
-                        stringResource(R.string.route_avoid_ferries),
-                        avoidFerries,
-                        Modifier
-                            .fillMaxWidth()
-                            .testTag("avoid_ferries_item")
-                    ) { avoidFerries = it }
                     AvoidOverlayItem(
                         stringResource(R.string.route_avoid_custom_area),
                         avoidCustomArea,
@@ -487,9 +510,7 @@ fun RouteOverlayScreen(
                             } else null
 
                             val criteria = mutableListOf<String>().apply {
-                                if (avoidTolls) add("tolls"); if (avoidHighways) add("highways"); if (avoidFerries) add(
-                                "ferries"
-                            )
+                                if (avoidHighways) add("highways")
                             }
                             val avoid = if (criteria.isNotEmpty() || avoidCustomArea) {
                                 Avoid(criteria, polygons = polygons)
@@ -741,25 +762,27 @@ fun StrategyOverlayDropdown(
             .wrapContentSize(Alignment.TopStart)
             .testTag(triggerTestTag)
             .clickable { expanded = !expanded }) {
-        TextField(
+        OutlinedTextField(
             value = strategies.find { it.first == currentStrategy }?.second ?: "",
             onValueChange = { },
             readOnly = true,
             enabled = false,
             label = {
                 Text(
-                    if (strategies.any { it.first == MODE_DRIVING }) "" else stringResource(R.string.route_strategy),
+                    stringResource(R.string.route_strategy),
                     style = MaterialTheme.typography.labelSmall
                 )
             },
             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, Modifier.size(18.dp)) },
             modifier = Modifier.fillMaxWidth(),
-            textStyle = MaterialTheme.typography.bodySmall,
-            colors = TextFieldDefaults.colors(
-                disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+            textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.Black),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = Color.Black,
+                disabledContainerColor = Color.White,
+                disabledBorderColor = Color(0xFFB0B8C4),
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledIndicatorColor = MaterialTheme.colorScheme.onSurfaceVariant
+                disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         )
         DropdownMenu(

@@ -29,8 +29,10 @@ private fun SuggestSearchListMode(
             SuggestSearchPanel(viewModel, searchQuery, isLoading)
         },
         panelFooter = {
-            SuggestResultsFooter(viewModel)
             PlaceDetailInlineCard(viewModel)
+        },
+        externalContent = {
+            SuggestResultsFooter(viewModel)
         },
         showResultsList = false,
     )

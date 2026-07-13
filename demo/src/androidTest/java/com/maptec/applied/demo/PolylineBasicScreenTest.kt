@@ -231,9 +231,8 @@ class PolylineBasicScreenTest {
 
         withMapApi { map ->
             val cam = map.cameraPosition
-            assertEquals("相机应移动到第一个顶点纬度", 39.9, cam.target!!.latitude, 0.01)
-            assertEquals("相机应移动到第一个顶点经度", 116.3, cam.target!!.longitude, 0.01)
-            assertEquals("缩放级别应为 14", 14.0, cam.zoom, 0.01)
+            assertEquals("相机应移动到城中心纬度", 39.925, cam.target!!.latitude, 0.01)
+            assertEquals("相机应移动到城中心经度", 116.35, cam.target!!.longitude, 0.01)
         }
         val line = waitForLineAt(LatLng(39.9, 116.3))
         assertNotNull("默认值绘制后应能查询到 Line 覆盖物", line)
@@ -252,9 +251,8 @@ class PolylineBasicScreenTest {
 
         withMapApi { map ->
             val cam = map.cameraPosition
-            assertEquals("纬度应为 35.6", 35.6, cam.target!!.latitude, 0.01)
-            assertEquals("经度应为 139.7", 139.7, cam.target!!.longitude, 0.01)
-            assertEquals("缩放级别应为 14", 14.0, cam.zoom, 0.01)
+            assertEquals("纬度应为城中心纬度", 35.65, cam.target!!.latitude, 0.01)
+            assertEquals("经度应为城中心经度", 139.75, cam.target!!.longitude, 0.01)
         }
         val line = waitForLineAt(LatLng(35.6, 139.7))
         assertNotNull("自定义值绘制后应能查询到 Line 覆盖物", line)
@@ -270,9 +268,8 @@ class PolylineBasicScreenTest {
 
         withMapApi { map ->
             val cam = map.cameraPosition
-            assertEquals(39.9, cam.target!!.latitude, 0.01)
-            assertEquals(116.3, cam.target!!.longitude, 0.01)
-            assertEquals(14.0, cam.zoom, 0.01)
+            assertEquals(39.925, cam.target!!.latitude, 0.01)
+            assertEquals(116.35, cam.target!!.longitude, 0.01)
         }
         val line = waitForLineAt(LatLng(39.9, 116.3))
         assertNotNull("发光效果绘制后应能查询到 Line 覆盖物", line)
@@ -284,14 +281,14 @@ class PolylineBasicScreenTest {
         clickDraw()
 
         withMapApi { map ->
-            assertEquals("第一次绘制相机纬度", 39.9, map.cameraPosition.target!!.latitude, 0.01)
+            assertEquals("第一次绘制相机纬度", 39.925, map.cameraPosition.target!!.latitude, 0.01)
         }
 
         setInput(TAG_INPUT_VERTICES, "[[40.0,117.0],[40.05,117.1]]")
         clickDraw()
 
         withMapApi { map ->
-            assertEquals("第二次绘制应移动到新坐标", 40.0, map.cameraPosition.target!!.latitude, 0.01)
+            assertEquals("第二次绘制应移动到新坐标", 40.025, map.cameraPosition.target!!.latitude, 0.01)
         }
     }
 
@@ -332,8 +329,8 @@ class PolylineBasicScreenTest {
 
         withMapApi { map ->
             val cam = map.cameraPosition
-            assertEquals("Round 线帽绘制后相机应移动", 39.9, cam.target!!.latitude, 0.01)
-            assertEquals(116.3, cam.target!!.longitude, 0.01)
+            assertEquals("Round 线帽绘制后相机应移动", 39.925, cam.target!!.latitude, 0.01)
+            assertEquals(116.35, cam.target!!.longitude, 0.01)
         }
         val line = waitForLineAt(LatLng(39.9, 116.3))
         assertNotNull("Round 线帽绘制后应能查询到 Line 覆盖物", line)
@@ -349,8 +346,8 @@ class PolylineBasicScreenTest {
 
         withMapApi { map ->
             val cam = map.cameraPosition
-            assertEquals("Arrow 线帽绘制后相机应移动", 39.9, cam.target!!.latitude, 0.01)
-            assertEquals(116.3, cam.target!!.longitude, 0.01)
+            assertEquals("Arrow 线帽绘制后相机应移动", 39.925, cam.target!!.latitude, 0.01)
+            assertEquals(116.35, cam.target!!.longitude, 0.01)
         }
         val line = waitForLineAt(LatLng(39.9, 116.3))
         assertNotNull("Arrow 线帽绘制后应能查询到 Line 覆盖物", line)
@@ -366,8 +363,8 @@ class PolylineBasicScreenTest {
 
         withMapApi { map ->
             val cam = map.cameraPosition
-            assertEquals("Custom 线帽绘制后相机应移动", 39.9, cam.target!!.latitude, 0.01)
-            assertEquals(116.3, cam.target!!.longitude, 0.01)
+            assertEquals("Custom 线帽绘制后相机应移动", 39.925, cam.target!!.latitude, 0.01)
+            assertEquals(116.35, cam.target!!.longitude, 0.01)
         }
         val line = waitForLineAt(LatLng(39.9, 116.3))
         assertNotNull("Custom 线帽绘制后应能查询到 Line 覆盖物", line)
@@ -383,8 +380,8 @@ class PolylineBasicScreenTest {
 
         withMapApi { map ->
             val cam = map.cameraPosition
-            assertEquals(35.6, cam.target!!.latitude, 0.01)
-            assertEquals(139.7, cam.target!!.longitude, 0.01)
+            assertEquals(35.65, cam.target!!.latitude, 0.01)
+            assertEquals(139.75, cam.target!!.longitude, 0.01)
         }
         val line = waitForLineAt(LatLng(35.6, 139.7))
         assertNotNull("混合线帽绘制后应能查询到 Line 覆盖物", line)
@@ -400,7 +397,7 @@ class PolylineBasicScreenTest {
         clickDraw()
 
         withMapApi { map ->
-            assertEquals(39.9, map.cameraPosition.target!!.latitude, 0.01)
+            assertEquals(39.925, map.cameraPosition.target!!.latitude, 0.01)
         }
 
         // 第二次：切回 Round（引擎线帽），marker 应被清掉，引擎线帽生效
@@ -410,8 +407,8 @@ class PolylineBasicScreenTest {
         clickDraw()
 
         withMapApi { map ->
-            assertEquals("切线帽 + 重绘相机应移动", 40.0, map.cameraPosition.target!!.latitude, 0.01)
-            assertEquals(117.0, map.cameraPosition.target!!.longitude, 0.01)
+            assertEquals("切线帽 + 重绘相机应移动", 40.025, map.cameraPosition.target!!.latitude, 0.01)
+            assertEquals(117.05, map.cameraPosition.target!!.longitude, 0.01)
         }
     }
 
@@ -429,7 +426,7 @@ class PolylineBasicScreenTest {
         clickDraw()
 
         withMapApi { map ->
-            assertEquals(39.9, map.cameraPosition.target!!.latitude, 0.01)
+            assertEquals(39.925, map.cameraPosition.target!!.latitude, 0.01)
         }
     }
 

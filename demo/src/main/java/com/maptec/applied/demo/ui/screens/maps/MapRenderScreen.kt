@@ -73,7 +73,6 @@ fun MapRenderScreen(
         val options = defaultDemoMapOptions(context).apply {
             zoomButtonsEnabled(false)
             camera(cameraPosition)
-            textureMode(true)
         }
 
         MapView(context, options).apply {

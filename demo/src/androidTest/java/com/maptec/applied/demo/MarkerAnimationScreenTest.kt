@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit
  * MarkerAnimationScreen 功能测试。
  *
  * 对应页面：业务图层 → Marker动画
- * 覆盖：Marker 添加/清除、进入/消失/点选动画配置、顶部动画控制栏、地图点击添加。
+ * 覆盖：Marker 添加/清除、进入/消失/点选动画配置、地图点击添加。
  */
 @RunWith(AndroidJUnit4::class)
 class MarkerAnimationScreenTest {
@@ -56,7 +56,6 @@ class MarkerAnimationScreenTest {
         private const val TAG_BTN_CLEAR_ALL = "symbol_btn_clear_all"
         private const val TAG_BTN_STOP_ALL_ANIMATIONS = "symbol_btn_stop_all_animations"
         private const val TAG_HAS_MARKERS = "symbol_layer_has_markers"
-        private const val TAG_TOP_BAR = "anim_top_bar"
         private const val TAG_BTN_ENTER_START = "anim_btn_enter_start"
         private const val TAG_BTN_ENTER_END = "anim_btn_enter_end"
         private const val TAG_BTN_DISAPPEAR_START = "anim_btn_disappear_start"
@@ -239,10 +238,10 @@ class MarkerAnimationScreenTest {
     // ==================== 页面加载 ====================
 
     @Test
-    fun testTopBar_showsMarkerStatusAndQuickActions() {
-        composeTestRule.onNodeWithTag("symbol_btn_add_marker_top").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("symbol_btn_clear_all_top").assertIsDisplayed()
-        composeTestRule.onNodeWithTag("anim_top_bar").assertIsDisplayed()
+    fun testStatusCard_showsMarkerActions() {
+        composeTestRule.expandConfigPanel()
+        composeTestRule.onNodeWithTag(TAG_BTN_ADD_MARKER).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TAG_BTN_CLEAR_ALL).performScrollTo().assertIsDisplayed()
     }
 
     @Test

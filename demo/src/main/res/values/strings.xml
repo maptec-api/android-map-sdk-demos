@@ -42,10 +42,10 @@
     <string name="route_avoid_ferries">轮渡</string>
     <string name="route_avoid_custom_area">区域</string>
     <string name="route_start_button">开始算路</string>
-    <string name="route_strategy_fastest">最快</string>
-    <string name="route_strategy_shortest">最短</string>
+    <string name="route_strategy_fastest">时间优先</string>
+    <string name="route_strategy_shortest">距离优先</string>
     <string name="route_strategy_eco">环保</string>
-    <string name="route_strategy_balanced">平衡</string>
+    <string name="route_strategy_balanced">平衡模式</string>
     <string name="route_mode_driving">标准驾车</string>
     <string name="route_mode_truck">货车</string>
     <string name="route_travel_mode">出行方式：</string>

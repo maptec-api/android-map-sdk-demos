@@ -21,6 +21,7 @@ import com.maptec.applied.search.model.request.SuggestRequest
 import com.maptec.applied.search.model.request.TextSearchRequest
 import com.maptec.applied.search.model.response.Place
 import com.maptec.applied.search.model.response.PhotoResponse
+import com.maptec.applied.search.model.response.ErrorObject
 import com.maptec.applied.search.model.response.ResponseStatus
 import com.maptec.applied.search.model.response.Suggestion
 import com.maptec.applied.search.service.SearchService
@@ -108,6 +109,20 @@ class SearchViewModel(
         val tabMap = _tabApiResponses.value[tab].orEmpty()
         _tabApiResponses.value = _tabApiResponses.value + (tab to (tabMap + (apiName to json)))
         _tabSelectedApiName.value = _tabSelectedApiName.value + (tab to apiName)
+    }
+
+    /** ZERO_RESULTS 表示无匹配结果，按空列表处理，不弹错误 Toast。 */
+    private fun isEmptySearchResult(status: ResponseStatus): Boolean =
+        status == ResponseStatus.ZERO_RESULTS
+
+    private fun showSearchStatusErrorToast(
+        tag: String,
+        status: ResponseStatus,
+        error: ErrorObject?,
+        toastPrefix: String,
+    ) {
+        log.e { "$tag: status: $status" }
+        _toastMessage.value = "$toastPrefix${error?.code}: ${error?.message ?: status.name}"
     }
 
     fun toggleMapView() {
@@ -384,9 +399,11 @@ class SearchViewModel(
                 result.onSuccess { response ->
                     saveTabApiResponse(SearchTab.TEXT, "autoSuggest", response)
                     if (response.status != ResponseStatus.OK) {
-                        log.e { "autoSuggest: status: ${response.status}" }
-                        response.error?.let { err ->
-                            _toastMessage.value = "服务器返回错误${err.code}：${err.message}"
+                        if (!isEmptySearchResult(response.status)) {
+                            log.e { "autoSuggest: status: ${response.status}" }
+                            response.error?.let { err ->
+                                _toastMessage.value = "服务器返回错误${err.code}：${err.message}"
+                            }
                         }
                         _suggestions.value = emptyList()
                         _showSuggestions.value = false
@@ -468,8 +485,14 @@ class SearchViewModel(
                 result.onSuccess { response ->
                     saveTabApiResponse(SearchTab.TEXT, "textSearch", response)
                     if (response.status != ResponseStatus.OK) {
-                        log.e { "textSearch: status: ${response.status}" }
-                        _toastMessage.value = "文本搜索，服务器返回错误:${response.error?.code} ${response.error?.message ?: response.status.name}"
+                        if (!isEmptySearchResult(response.status)) {
+                            showSearchStatusErrorToast(
+                                tag = "textSearch",
+                                status = response.status,
+                                error = response.error,
+                                toastPrefix = "文本搜索，服务器返回错误:",
+                            )
+                        }
                         _places.value = emptyList()
                         _showResults.value = false
                         _isLoading.value = false
@@ -531,8 +554,10 @@ class SearchViewModel(
                 result.onSuccess { response ->
                     saveTabApiResponse(SearchTab.TEXT, "textSearch(loadMore)", response)
                     if (response.status != ResponseStatus.OK) {
-                        response.error?.let { err ->
-                            _toastMessage.value = "服务器返回错误${err.code}：${err.message}"
+                        if (!isEmptySearchResult(response.status)) {
+                            response.error?.let { err ->
+                                _toastMessage.value = "服务器返回错误${err.code}：${err.message}"
+                            }
                         }
                         _isLoadingMore.value = false
                         return@launch
@@ -588,8 +613,14 @@ class SearchViewModel(
                 result.onSuccess { response ->
                     saveTabApiResponse(SearchTab.NEARBY, "nearbySearch", response)
                     if (response.status != ResponseStatus.OK) {
-                        log.e { "nearbySearch: status: ${response.status}" }
-                        _toastMessage.value = "附近搜索失败，服务器返回错误:${response.error?.code}: ${response.error?.message ?: response.status.name}"
+                        if (!isEmptySearchResult(response.status)) {
+                            showSearchStatusErrorToast(
+                                tag = "nearbySearch",
+                                status = response.status,
+                                error = response.error,
+                                toastPrefix = "附近搜索失败，服务器返回错误:",
+                            )
+                        }
                         _places.value = emptyList()
                         _showResults.value = false
                         _isLoading.value = false
@@ -646,8 +677,14 @@ class SearchViewModel(
                 result.onSuccess { response ->
                     saveTabApiResponse(SearchTab.SUGGEST, "suggestSearch", response)
                     if (response.status != ResponseStatus.OK) {
-                        log.e { "suggestSearch: status: ${response.status}" }
-                        _toastMessage.value = "交互式搜索失败，服务器返回错误:${response.error?.code}: ${response.error?.message ?: response.status.name}"
+                        if (!isEmptySearchResult(response.status)) {
+                            showSearchStatusErrorToast(
+                                tag = "suggestSearch",
+                                status = response.status,
+                                error = response.error,
+                                toastPrefix = "交互式搜索失败，服务器返回错误:",
+                            )
+                        }
                         _suggestions.value = emptyList()
                         _showSuggestions.value = false
                         _isLoading.value = false

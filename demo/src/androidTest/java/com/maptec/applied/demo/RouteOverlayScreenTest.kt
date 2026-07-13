@@ -34,7 +34,7 @@ class RouteOverlayScreenTest {
         private const val TAG_WAYPOINT_LAT = "waypoint_lat_input"
         private const val TAG_WAYPOINT_LNG = "waypoint_lng_input"
         private const val TAG_WAYPOINT_ADD = "waypoint_add_button"
-        private const val TAG_AVOID_TOLLS = "avoid_tolls_item"
+        private const val TAG_AVOID_HIGHWAYS = "avoid_highways_item"
         private const val TAG_START_ROUTE = "start_route_button"
         private const val TAG_ROUTE_SUMMARY = "route_summary_card"
         private const val TAG_NAV_LINES = "route_overlay_has_navigation_lines"
@@ -138,11 +138,11 @@ class RouteOverlayScreenTest {
     }
 
     @Test
-    fun routeWithAvoidTolls_returnsValidSummary() {
+    fun routeWithAvoidHighways_returnsValidSummary() {
         navigateToRouteScreen()
 
-        scrollTo(TAG_AVOID_TOLLS)
-        composeTestRule.onNodeWithTag(TAG_AVOID_TOLLS).performClick()
+        scrollTo(TAG_AVOID_HIGHWAYS)
+        composeTestRule.onNodeWithTag(TAG_AVOID_HIGHWAYS).performClick()
         composeTestRule.waitForIdle()
 
         clickStartRoute()

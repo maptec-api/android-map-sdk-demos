@@ -3,7 +3,6 @@
 package com.maptec.applied.demo.ui.screens.overlays.marker
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,27 +76,18 @@ fun MarkerAnimationScreen(
             }
         },
         content = {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Mapview(
-                    modifier = Modifier.fillMaxSize(),
-                    onStyleRendered = { mapView, mapLibreMap, style ->
-                        viewModel.initSymbolManager(context, mapView, mapLibreMap, style)
-                        if (!defaultAnimationStarted) {
-                            defaultAnimationStarted = true
-                            viewModel.setEnterType("bounce")
-                            viewModel.addMarker()
-                            viewModel.startEnterAnimation()
-                        }
-                    },
-                )
-                MainAnimationTopBar(
-                    viewModel = viewModel,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                )
-            }
+            Mapview(
+                modifier = Modifier.fillMaxSize(),
+                onStyleRendered = { mapView, mapLibreMap, style ->
+                    viewModel.initSymbolManager(context, mapView, mapLibreMap, style)
+                    if (!defaultAnimationStarted) {
+                        defaultAnimationStarted = true
+                        viewModel.setEnterType("bounce")
+                        viewModel.addMarker()
+                        viewModel.startEnterAnimation()
+                    }
+                },
+            )
 
             if (markers.isNotEmpty()) {
                 Box(Modifier.size(1.dp).testTag("symbol_layer_has_markers"))
@@ -110,59 +100,6 @@ fun MarkerAnimationScreen(
             }
         },
     )
-}
-
-@Composable
-private fun MainAnimationTopBar(
-    viewModel: MarkerAnimationViewModel,
-    modifier: Modifier = Modifier,
-) {
-    val markers by viewModel.markers.collectAsState()
-    val selectedMarkerId by viewModel.selectedMarkerId.collectAsState()
-
-    Row(
-        modifier = modifier
-            .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                shape = RoundedCornerShape(12.dp),
-            )
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-            .testTag("anim_top_bar"),
-        horizontalArrangement = Arrangement.spacedBy(FIELD_PADDING),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "${stringResource(R.string.marker_anim_marker_count)}: ${markers.size}",
-                style = MaterialTheme.typography.labelLarge,
-            )
-            Text(
-                text = selectedMarkerId?.let {
-                    "${stringResource(R.string.marker_anim_selected)}: ${it.take(8)}"
-                } ?: stringResource(R.string.marker_anim_tap_to_add),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        DemoPanelButton(
-            onClick = { viewModel.addMarker() },
-            modifier = Modifier
-                .weight(0.9f)
-                .testTag("symbol_btn_add_marker_top"),
-            shape = RoundedCornerShape(10.dp),
-        ) {
-            Text(stringResource(R.string.marker_anim_add))
-        }
-        OutlinedButton(
-            onClick = { viewModel.clearMarkers() },
-            modifier = Modifier
-                .weight(0.9f)
-                .testTag("symbol_btn_clear_all_top"),
-            shape = RoundedCornerShape(10.dp),
-        ) {
-            Text(stringResource(R.string.marker_anim_clear))
-        }
-    }
 }
 
 @Composable

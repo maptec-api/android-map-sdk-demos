@@ -246,8 +246,11 @@ fun ComposeContentTestRule.clickCatalogItem(
     settleForIdle()
     if (!onAllNodesWithTag(tag).existsSafely()) {
         if (onAllNodesWithTag(CATALOG_LIST_TAG).existsSafely()) {
-            onNodeWithTag(CATALOG_LIST_TAG).performScrollToNode(hasTestTag(tag))
-        } else {
+            runCatching {
+                onNodeWithTag(CATALOG_LIST_TAG).performScrollToNode(hasTestTag(tag))
+            }
+        }
+        if (!onAllNodesWithTag(tag).existsSafely()) {
             waitUntil(timeoutMillis) {
                 if (onAllNodesWithTag(tag).existsSafely()) {
                     true

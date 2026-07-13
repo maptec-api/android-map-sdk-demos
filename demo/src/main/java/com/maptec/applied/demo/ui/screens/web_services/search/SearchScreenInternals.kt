@@ -61,7 +61,6 @@ import com.maptec.applied.demo.map.Mapview
 import com.maptec.applied.demo.ui.screens.common.AdvancedFieldsSurface
 import com.maptec.applied.demo.ui.screens.common.LatLngOutlinedTextField
 import com.maptec.applied.demo.ui.screens.common.NearbyAdvancedSummary
-import com.maptec.applied.demo.ui.screens.common.WebServiceApiResponseCard
 import com.maptec.applied.demo.ui.screens.common.WebServicePanel
 import com.maptec.applied.demo.ui.screens.common.validateLatLng
 import com.maptec.applied.demo.viewmodel.SearchViewModel
@@ -164,6 +163,7 @@ internal fun SearchListModeLayout(
     mapLibreMapRef: MaptecMap?,
     panelContent: @Composable () -> Unit,
     panelFooter: @Composable () -> Unit = {},
+    externalContent: @Composable () -> Unit = {},
     showResultsList: Boolean = true,
     canLoadMore: Boolean = false,
     onLoadMore: () -> Unit = {},
@@ -172,61 +172,33 @@ internal fun SearchListModeLayout(
     val places by viewModel.places.collectAsState()
     val showResults by viewModel.showResults.collectAsState()
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
-    val selectedApiName by viewModel.currentTabSelectedApiName.collectAsState()
-    val selectedResponseJson by viewModel.currentTabSelectedResponseJson.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF8FAFD))
+            .verticalScroll(scrollState)
             .padding(horizontal = 10.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        if (selectedResponseJson.isNotBlank()) {
-            WebServiceApiResponseCard(
-                titlePrefixRes = R.string.search_api_response_title,
-                selectedApiName = selectedApiName,
-                responseJson = selectedResponseJson,
-            )
+        WebServicePanel {
+            panelContent()
+            panelFooter()
         }
 
-        val hasResults = showResults && places.isNotEmpty()
+        externalContent()
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            Column(
-                modifier = if (hasResults) {
-                    Modifier.fillMaxWidth()
-                } else {
-                    Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState)
+        if (showResultsList && showResults && places.isNotEmpty()) {
+            SearchResultsList(
+                places = places,
+                onPlaceClick = { place ->
+                    mapLibreMapRef?.let { viewModel.onPlaceClick(place, it) }
+                        ?: viewModel.onPlaceClick(place, null)
                 },
-            ) {
-                WebServicePanel {
-                    panelContent()
-                    panelFooter()
-                }
-            }
-
-            if (hasResults && showResultsList) {
-                SearchResultsList(
-                    places = places,
-                    onPlaceClick = { place ->
-                        mapLibreMapRef?.let { viewModel.onPlaceClick(place, it) }
-                            ?: viewModel.onPlaceClick(place, null)
-                    },
-                    modifier = Modifier.weight(1f),
-                    canLoadMore = canLoadMore,
-                    isLoadingMore = isLoadingMore,
-                    onLoadMore = onLoadMore,
-                )
-            }
+                canLoadMore = canLoadMore,
+                isLoadingMore = isLoadingMore,
+                onLoadMore = onLoadMore,
+            )
         }
     }
 }
@@ -856,7 +828,6 @@ internal fun SuggestResultsFooter(viewModel: SearchViewModel) {
     val suggestResultLimitString by viewModel.suggestResultLimit.collectAsState()
 
     if (showSuggestions && suggestions.isNotEmpty()) {
-        Spacer(modifier = Modifier.height(12.dp))
         val suggestLimit = suggestResultLimitString.trim().toIntOrNull()?.takeIf { it in 1..20 } ?: 10
         val canLoadMoreSuggestions = suggestLimit < 20 && suggestions.size >= suggestLimit
         SuggestionsList(

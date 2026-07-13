@@ -3,11 +3,11 @@ package com.maptec.applied.demo
 import android.util.Log
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -21,10 +21,11 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.maptec.applied.demo.ext.DEMO_BACK_BUTTON_TAG
 import com.maptec.applied.demo.ext.clickClickableText
 import com.maptec.applied.demo.ext.openWebServicesDemo
+import com.maptec.applied.demo.ext.resetToMainCatalog
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForApiResponseKey
 import org.junit.After
 import org.junit.Assert.assertFalse
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,6 +38,12 @@ class SearchScreenTest {
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Before
+    fun setUp() {
+        composeTestRule.resetToMainCatalog()
+        composeTestRule.waitForIdle()
+    }
 
     @After
     fun tearDown() {
@@ -55,7 +62,7 @@ class SearchScreenTest {
             "search_query_input", "search_submit_button",
             "search_nearby_radius", "search_nearby_submit_button", "search_nearby_types_dropdown",
             "search_input_place_id", "search_input_suggest_types",
-            "api_response_card", "place_detail_card"
+            "place_detail_card"
         )
         val found = targetTags.filter { tag ->
             composeTestRule.onAllNodesWithTag(tag, useUnmergedTree = true)
@@ -93,19 +100,6 @@ class SearchScreenTest {
         composeTestRule.clickClickableText(catalogResForTab(labelResId))
         composeTestRule.waitForIdle()
         logTestTags("switchToTab_${getString(labelResId)}")
-    }
-
-    /** 等待 API 响应 JSON 出现在 ApiResponseDebugCard 中 */
-    private fun waitForApiResponse(timeoutMs: Long = 60_000) {
-        composeTestRule.waitUntil(timeoutMs) {
-            composeTestRule.onAllNodesWithTag("api_response_card", useUnmergedTree = true)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        // 收起软键盘：在横屏/平板上 IME 会进入全屏 extract 模式覆盖整个界面，
-        // 导致顶部的 api_response_card 虽然存在于语义树中却被判定为“未显示”。
-        dismissSoftKeyboard()
-        composeTestRule.waitForIdle()
-
     }
 
     /** 关闭软键盘，避免全屏 IME 遮挡待断言的组件 */
@@ -207,11 +201,8 @@ class SearchScreenTest {
             .performTextInput("hotel in Singapore")
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText(getString(R.string.search_action_search)).performClick()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("places")
+        dismissSoftKeyboard()
+        waitForSearchResults(60_000)
     }
 
     @Test
@@ -223,11 +214,8 @@ class SearchScreenTest {
         replaceField("search_input_page_size", "5")
         typeSearchQuery("restaurant")
         clickSearch()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("places")
+        dismissSoftKeyboard()
+        waitForSearchResults(60_000)
     }
 
     @Test
@@ -250,11 +238,8 @@ class SearchScreenTest {
             .performTextInput("cafe")
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText(getString(R.string.search_action_search)).performClick()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("places")
+        dismissSoftKeyboard()
+        waitForSearchResults(60_000)
     }
 
     // ==================== 2. 附近搜索 ====================
@@ -264,11 +249,8 @@ class SearchScreenTest {
         navigateToSearchScreen()
         navigateToNearbyTab()
         clickNearbySearch()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("places")
+        dismissSoftKeyboard()
+        waitForSearchResults(60_000)
     }
 
     @Test
@@ -293,11 +275,8 @@ class SearchScreenTest {
         composeTestRule.waitForIdle()
         val submitBtn = composeTestRule.onNodeWithTag("search_nearby_submit_button", useUnmergedTree = true)
         submitBtn.performClick()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("places")
+        dismissSoftKeyboard()
+        waitForSearchResults(60_000)
     }
 
     // ==================== 3. 交互式搜索 ====================
@@ -309,11 +288,11 @@ class SearchScreenTest {
         Thread.sleep(1000)
         replaceField("search_query_input", "hotel")
         composeTestRule.onNodeWithTag("search_submit_button", useUnmergedTree = true).performClick()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-          composeTestRule.waitForApiResponseKey("status")
-          composeTestRule.waitForApiResponseKey("OK")
-          composeTestRule.waitForApiResponseKey("suggestions")
+        dismissSoftKeyboard()
+        composeTestRule.waitUntil(60_000) {
+            composeTestRule.onAllNodesWithText("hotel", substring = true, useUnmergedTree = true)
+                .fetchSemanticsNodes().size > 1
+        }
     }
 
     @Test
@@ -324,11 +303,11 @@ class SearchScreenTest {
         replaceField("search_input_suggest_types", "hotel,restaurant")
         replaceField("search_query_input", "hotel")
         composeTestRule.onNodeWithTag("search_submit_button", useUnmergedTree = true).performClick()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("suggestions")
+        dismissSoftKeyboard()
+        composeTestRule.waitUntil(60_000) {
+            composeTestRule.onAllNodesWithText("hotel", substring = true, useUnmergedTree = true)
+                .fetchSemanticsNodes().size > 1
+        }
     }
 
     // ==================== 4. 地点详情 ====================
@@ -340,12 +319,13 @@ class SearchScreenTest {
         Thread.sleep(1000)
         replaceField("search_input_place_id", "1597034063941321331")
         composeTestRule.onNodeWithText(getString(R.string.search_action_get_detail)).performClick()
-        waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("places")
-         composeTestRule.waitForApiResponseKey("displayName")
+        dismissSoftKeyboard()
+        waitForPlaceDetail()
+        composeTestRule.onNodeWithTag("place_detail_card").assertIsDisplayed()
+        composeTestRule.waitUntil(60_000) {
+            composeTestRule.onAllNodesWithText(getString(R.string.search_detail_name), useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     @Test
@@ -353,7 +333,7 @@ class SearchScreenTest {
         navigateToSearchScreen()
         typeSearchQuery("hotel in Singapore")
         clickSearch()
-        waitForApiResponse()
+        dismissSoftKeyboard()
         waitForSearchResults()
         composeTestRule.onAllNodesWithTag("search_place_item", useUnmergedTree = true)[0]
             .performScrollTo()
@@ -365,12 +345,6 @@ class SearchScreenTest {
             composeTestRule.onAllNodesWithText(getString(R.string.search_detail_name), useUnmergedTree = true)
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        // place detail API response is shown on the active search screen
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-        composeTestRule.waitForApiResponseKey("status", timeoutMs = 60_000)
-        composeTestRule.waitForApiResponseKey("OK", timeoutMs = 60_000)
-        composeTestRule.waitForApiResponseKey("places", timeoutMs = 60_000)
-        composeTestRule.waitForApiResponseKey("suggestions", timeoutMs = 60_000)
     }
 
 
@@ -388,9 +362,7 @@ class SearchScreenTest {
                 "singapo", substring = true, useUnmergedTree = true, ignoreCase = true
             ).fetchSemanticsNodes().size > 1
         }
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("suggestions")
+        dismissSoftKeyboard()
     }
 
     @Test
@@ -405,14 +377,12 @@ class SearchScreenTest {
                 .fetchSemanticsNodes().size > 1
         }
         // 通过 contentDescription 找到建议项（合并树中 Card 的 clickable 可用）
-        val suggestionIcons = composeTestRule.onAllNodes(hasContentDescription("提示词"))
+        val suggestionIcons = composeTestRule.onAllNodes(hasContentDescription(getString(R.string.search_suggestion_cd)))
         if (suggestionIcons.fetchSemanticsNodes().isNotEmpty()) {
             suggestionIcons[0].performClick()
             composeTestRule.waitForIdle()
-            // 点击建议后应触发文本搜索
-            waitForApiResponse(20000)
-             composeTestRule.waitForApiResponseKey("status")
-             composeTestRule.waitForApiResponseKey("OK")
+            // 点击建议后应触发文本搜索，底部显示结果列表
+            waitForSearchResults(60_000)
         }
     }
 

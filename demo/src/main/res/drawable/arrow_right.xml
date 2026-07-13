@@ -3,7 +3,8 @@
     android:height="300dp"
     android:viewportWidth="300"
     android:viewportHeight="300">
+  <!-- 底边过视口中心 (150,150)，配合 MarkerAnchorType.CENTER 时底边齐平线端点，尖端朝右外伸 -->
   <path
-      android:pathData="M240,150L100,80L100,220Z"
+      android:pathData="M290,150L150,80L150,220Z"
       android:fillColor="#5B9BD5"/>
 </vector>

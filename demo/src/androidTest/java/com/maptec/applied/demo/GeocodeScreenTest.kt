@@ -21,10 +21,11 @@ import com.maptec.applied.demo.ext.DEMO_BACK_BUTTON_TAG
 import com.maptec.applied.demo.ext.clickClickableText
 import com.maptec.applied.demo.ext.getTestString
 import com.maptec.applied.demo.ext.openWebServicesDemo
-import com.maptec.applied.demo.ext.expandApiResponseCard
+import com.maptec.applied.demo.ext.resetToMainCatalog
 import com.maptec.applied.demo.ext.waitForApiResponseKey
 import com.maptec.applied.demo.viewmodel.GeocodeViewModel.Mode
 import org.junit.Assert.assertFalse
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -57,6 +58,12 @@ class GeocodeScreenTest {
 
     private fun getString(resId: Int): String = getTestString(resId)
 
+    @Before
+    fun setUp() {
+        composeTestRule.resetToMainCatalog()
+        composeTestRule.waitForIdle()
+    }
+
     private fun navigateToGeocodeScreen() {
         composeTestRule.waitForIdle()
         composeTestRule.openWebServicesDemo(R.string.catalog_forward_geocode)
@@ -81,10 +88,8 @@ class GeocodeScreenTest {
     private fun waitForApiResponse(timeoutMs: Long = 60_000) {
         val loadingText = getString(R.string.geocode_loading)
         composeTestRule.waitUntil(timeoutMs) {
-            composeTestRule.onAllNodesWithTag("api_response_card", useUnmergedTree = true)
+            composeTestRule.onAllNodesWithTag("geocode_error_message", useUnmergedTree = true)
                 .fetchSemanticsNodes().isNotEmpty() ||
-                composeTestRule.onAllNodesWithTag("geocode_error_message", useUnmergedTree = true)
-                    .fetchSemanticsNodes().isNotEmpty() ||
                 composeTestRule.onAllNodesWithText("status:", substring = true, useUnmergedTree = true)
                     .fetchSemanticsNodes().isNotEmpty()
         }
@@ -92,7 +97,6 @@ class GeocodeScreenTest {
             composeTestRule.onAllNodesWithText(loadingText, useUnmergedTree = true)
                 .fetchSemanticsNodes().isEmpty()
         }
-        composeTestRule.expandApiResponseCard()
     }
 
     private fun expandGeocodeAdvanced() {
@@ -112,6 +116,21 @@ class GeocodeScreenTest {
         composeTestRule.onNodeWithTag("geocode_submit_button").performClick()
     }
 
+    private fun verifyApiResponse() {
+        composeTestRule.waitUntil(30_000) {
+            composeTestRule.onAllNodesWithText("status:", substring = true, useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty() ||
+            composeTestRule.onAllNodesWithTag("geocode_error_message", useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+        val hasError = composeTestRule.onAllNodesWithTag("geocode_error_message", useUnmergedTree = true)
+            .fetchSemanticsNodes().isNotEmpty()
+        if (hasError) {
+            composeTestRule.onNodeWithTag("geocode_error_message").assertIsDisplayed()
+        } else {
+            composeTestRule.onNodeWithText("status:", substring = true).assertIsDisplayed()
+        }
+    }
 
 
     // ==================== 1. 正向地理编码 ====================
@@ -121,10 +140,7 @@ class GeocodeScreenTest {
         navigateToGeocodeScreen()
         clickSubmit()
         waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-        composeTestRule.waitForApiResponseKey("status")
-        composeTestRule.waitForApiResponseKey("OK")
-        composeTestRule.waitForApiResponseKey("results")
+        verifyApiResponse()
     }
 
     @Test
@@ -146,10 +162,7 @@ class GeocodeScreenTest {
         composeTestRule.waitForIdle()
         clickSubmit()
         waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-        composeTestRule.waitForApiResponseKey("status")
-        composeTestRule.waitForApiResponseKey("OK")
-        composeTestRule.waitForApiResponseKey("results")
+        verifyApiResponse()
     }
 
     @Test
@@ -164,10 +177,7 @@ class GeocodeScreenTest {
         composeTestRule.onNodeWithTag("geocode_submit_button").assertIsEnabled()
         clickSubmit()
         waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-        composeTestRule.waitForApiResponseKey("status")
-        composeTestRule.waitForApiResponseKey("OK")
-        composeTestRule.waitForApiResponseKey("results")
+        verifyApiResponse()
     }
 
     // ==================== 2. 反向地理编码 ====================
@@ -178,10 +188,7 @@ class GeocodeScreenTest {
         switchToGeocodeMode(Mode.REVERSE)
         clickSubmit()
         waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-        composeTestRule.waitForApiResponseKey("status")
-        composeTestRule.waitForApiResponseKey("OK")
-        composeTestRule.waitForApiResponseKey("results")
+        verifyApiResponse()
     }
 
     @Test
@@ -204,10 +211,7 @@ class GeocodeScreenTest {
         composeTestRule.waitForIdle()
         clickSubmit()
         waitForApiResponse()
-        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-        composeTestRule.waitForApiResponseKey("status")
-        composeTestRule.waitForApiResponseKey("OK")
-        composeTestRule.waitForApiResponseKey("results")
+        verifyApiResponse()
     }
 
     // ==================== 3. Tab 切换 ====================

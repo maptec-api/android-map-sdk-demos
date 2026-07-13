@@ -61,10 +61,10 @@
     <string name="route_avoid_ferries">Ferries</string>
     <string name="route_avoid_custom_area">Area</string>
     <string name="route_start_button">Start Routing</string>
-    <string name="route_strategy_fastest">Fastest</string>
-    <string name="route_strategy_shortest">Shortest</string>
+    <string name="route_strategy_fastest">Time Priority</string>
+    <string name="route_strategy_shortest">Distance Priority</string>
     <string name="route_strategy_eco">Eco</string>
-    <string name="route_strategy_balanced">Balanced</string>
+    <string name="route_strategy_balanced">Balanced Mode</string>
     <string name="route_mode_driving">Driving</string>
     <string name="route_mode_truck">Truck</string>
     <string name="route_travel_mode">Travel Mode:</string>

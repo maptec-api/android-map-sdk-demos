@@ -26,6 +26,7 @@ private fun PlaceDetailListMode(
         mapLibreMapRef = mapLibreMapRef,
         panelContent = {
             PlaceDetailPanel(viewModel, isLoadingPlaceDetail)
+            PlaceDetailInlineCard(viewModel)
         },
         showResultsList = false,
     )

@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -38,15 +39,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.maptec.applied.demo.R
-import com.maptec.applied.demo.ui.screens.common.WebServiceApiResponseCard
 import com.maptec.applied.demo.ui.screens.common.WebServicePanel
 import com.maptec.applied.demo.viewmodel.GeocodeViewModel
 import com.maptec.applied.demo.viewmodel.GeocodeViewModel.Mode
 import com.maptec.applied.demo.viewmodel.GeocodeViewModelFactory
 import com.maptec.applied.search.model.response.GeocodeResponse
+import com.maptec.applied.search.model.response.GeocodeResult
 
 @Composable
 internal fun GeocodeScreenScaffold(
@@ -62,7 +64,6 @@ internal fun GeocodeScreenScaffold(
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val response by viewModel.response.collectAsState()
-    val apiSnapshot by viewModel.apiSnapshot.collectAsState()
     val toastMessage by viewModel.toastMessage.collectAsState()
 
     val language by viewModel.language.collectAsState()
@@ -90,15 +91,16 @@ internal fun GeocodeScreenScaffold(
             .padding(horizontal = 10.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        apiSnapshot?.let { snapshot ->
-            WebServiceApiResponseCard(
-                titlePrefixRes = R.string.geocode_api_response_title,
-                selectedApiName = snapshot.apiName,
-                responseJson = snapshot.responseJson,
-                collapseRes = R.string.geocode_collapse,
-                expandRes = R.string.geocode_expand,
-            )
-        }
+        // JSON 响应卡片已在 UI 层隐藏，ViewModel 仍保留响应数据。
+        // apiSnapshot?.let { snapshot ->
+        //     WebServiceApiResponseCard(
+        //         titlePrefixRes = R.string.geocode_api_response_title,
+        //         selectedApiName = snapshot.apiName,
+        //         responseJson = snapshot.responseJson,
+        //         collapseRes = R.string.geocode_collapse,
+        //         expandRes = R.string.geocode_expand,
+        //     )
+        // }
 
         WebServicePanel {
             formContent(viewModel)
@@ -141,9 +143,7 @@ internal fun GeocodeScreenScaffold(
         }
 
         response?.let { r ->
-            WebServicePanel {
-                GeocodeResponseSection(r)
-            }
+            GeocodeResponseSection(r)
         }
     }
 }
@@ -209,10 +209,16 @@ private fun GeocodeAdvancedSection(
 
 @Composable
 internal fun GeocodeResponseSection(response: GeocodeResponse) {
-    Text("status: ${response.status}")
+    Text(
+        text = "status: ${response.status}",
+        modifier = Modifier.testTag("geocode_response_status"),
+    )
     response.error?.let { err ->
         Spacer(modifier = Modifier.height(4.dp))
-        Text("error: ${err.code} ${err.message}", color = MaterialTheme.colorScheme.error)
+        Text(
+            text = "error: ${err.code} ${err.message}",
+            color = MaterialTheme.colorScheme.error,
+        )
     }
 
     Spacer(modifier = Modifier.height(12.dp))
@@ -222,39 +228,94 @@ internal fun GeocodeResponseSection(response: GeocodeResponse) {
         return
     }
 
-    response.results?.forEachIndexed { index, item ->
-        Card(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text("#${index + 1}")
-                item.formattedAddress?.let {
+    GeocodeResultsList(response.results.orEmpty())
+}
+
+@Composable
+private fun GeocodeResultsList(results: List<GeocodeResult>) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        results.forEachIndexed { index, item ->
+            GeocodeResultItem(item = item, index = index)
+        }
+    }
+}
+
+@Composable
+private fun GeocodeResultItem(item: GeocodeResult, index: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("geocode_result_item"),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+        ) {
+            Text(
+                text = "#${index + 1}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF111827),
+            )
+            item.formattedAddress?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF111827),
+                )
+            }
+            item.placeId?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "placeId: $it",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF475569),
+                )
+            }
+            val loc = item.geometry?.location
+            if (loc != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "location: ${loc.latitude},${loc.longitude}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF475569),
+                )
+            }
+            item.geometry?.locationType?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "locationType: $it",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF475569),
+                )
+            }
+            item.matchDetails?.matchScore?.let {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "matchScore: $it",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color(0xFF475569),
+                )
+            }
+            item.types?.let { types ->
+                if (types.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(it)
-                }
-                item.placeId?.let {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("placeId: $it")
-                }
-                val loc = item.geometry?.location
-                if (loc != null) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("location: ${loc.latitude},${loc.longitude}")
-                }
-                item.geometry?.locationType?.let {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("locationType: $it")
-                }
-                item.matchDetails?.matchScore?.let {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("matchScore: $it")
-                }
-                item.types?.let { types ->
-                    if (types.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("types: ${types.joinToString(",")}")
-                    }
+                    Text(
+                        text = "types: ${types.joinToString(",")}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF475569),
+                    )
                 }
             }
         }
-        Spacer(modifier = Modifier.height(12.dp))
     }
 }

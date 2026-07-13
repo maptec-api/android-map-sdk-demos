@@ -18,6 +18,7 @@ import com.maptec.applied.demo.ext.expandConfigPanel
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
 import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.resetToMainCatalog
 import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.geometry.LatLng
 import com.maptec.applied.maps.MapView
@@ -29,6 +30,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Before
 import kotlin.math.abs
 import org.junit.Rule
 import org.junit.Test
@@ -96,6 +98,12 @@ class CircleScreenTest {
 
     @get:Rule
     val ruleChain: TestRule = RuleChain.outerRule(permissionRule).around(composeTestRule)
+
+    @Before
+    fun setUp() {
+        composeTestRule.resetToMainCatalog()
+        composeTestRule.waitForIdle()
+    }
 
     @After
     fun tearDown() {

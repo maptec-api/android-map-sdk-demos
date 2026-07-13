@@ -72,11 +72,21 @@ private const val LINE_PATTERN_CUSTOM = "line_custom"
 
 private const val LINE_CAP_CUSTOM = "custom"
 private const val LINE_CAP_ARROW = "arrow"
-// arrow_*.xml 底边中心在 (150,150)，底边 vp 高 100；屏幕底边高 = vp * iconSize，目标 2×线宽
-private const val ARROW_TRIANGLE_BASE_VP = 100f
+// arrow_*.xml 底边过视口中心 (150,*)，底边 vp 高 140；屏幕底边高 = vp * iconSize，目标 2×线宽
+private const val ARROW_TRIANGLE_BASE_VP = 140f
 private const val ARROW_BASE_TO_STROKE_RATIO = 2f
 // marker 中心跟线端点的像素间距
 private const val LINE_CAP_CUSTOM_GAP_PX = 150f
+
+/**
+ * Arrow / Custom 用 Marker 画端帽时，折线本身必须用平切 [LineCapType.BUTT]，
+ * 才能和三角形底边齐平。若传 [LineCapType.NONE]（空串），引擎会跳过不下发，
+ * 保留上一次的 round，圆头会伸进三角形造成重叠。
+ */
+private fun engineCapForSelection(cap: String): String = when (cap) {
+    LINE_CAP_ARROW, LINE_CAP_CUSTOM -> LineCapType.BUTT
+    else -> cap
+}
 
 internal enum class LineMode {
     BASIC,
@@ -200,6 +210,7 @@ internal fun LineBottomDetailPanel(
     var customEndMarker by remember { mutableStateOf<Marker?>(null) }
     var arrowStartMarker by remember { mutableStateOf<Marker?>(null) }
     var arrowEndMarker by remember { mutableStateOf<Marker?>(null) }
+    var capGeometryKey by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     fun requestMapRepaint() {
@@ -225,8 +236,8 @@ internal fun LineBottomDetailPanel(
             }
             runCatching { line.setMaskColor(arrowsColor) }
         }
-        line.setLineCapStart(if (startCap == LINE_CAP_CUSTOM || startCap == LINE_CAP_ARROW) LineCapType.NONE else startCap)
-        line.setLineCapEnd(if (endCap == LINE_CAP_CUSTOM || endCap == LINE_CAP_ARROW) LineCapType.NONE else endCap)
+        line.setLineCapStart(engineCapForSelection(startCap))
+        line.setLineCapEnd(engineCapForSelection(endCap))
         requestMapRepaint()
     }
 
@@ -237,18 +248,59 @@ internal fun LineBottomDetailPanel(
         arrowEndMarker?.remove(); arrowEndMarker = null
     }
 
-    /** Arrow / Custom 线帽通过 Marker 实现，切换时需重建端点标记。 */
-    fun syncLineCapMarkers(points: List<LatLng>) {
+    fun capMarkersMatchSelection(): Boolean {
+        val wantStartArrow = startCap == LINE_CAP_ARROW
+        val wantEndArrow = endCap == LINE_CAP_ARROW
+        val wantStartCustom = startCap == LINE_CAP_CUSTOM
+        val wantEndCustom = endCap == LINE_CAP_CUSTOM
+        return (wantStartArrow == (arrowStartMarker != null)) &&
+            (wantEndArrow == (arrowEndMarker != null)) &&
+            (wantStartCustom == (customStartMarker != null)) &&
+            (wantEndCustom == (customEndMarker != null))
+    }
+
+    /** 滑块拖动时原地更新线帽 Marker 的颜色/透明度/尺寸。 */
+    fun updateCapMarkersAppearance() {
+        if (mode != LineMode.CAPS) return
+        val tint = parseStrokeTint(strokeColor)
+        val opacity = strokeOpacity.coerceIn(0f, 1f)
+        val arrowSize = arrowIconSizeForStroke(strokeWeight)
+
+        customStartMarker?.let { marker ->
+            marker.setIconColor(tint)
+            marker.setIconOpacity(opacity)
+        }
+        customEndMarker?.let { marker ->
+            marker.setIconColor(tint)
+            marker.setIconOpacity(opacity)
+        }
+        arrowStartMarker?.let { marker ->
+            marker.setIconColor(tint)
+            marker.setIconOpacity(opacity)
+            marker.setIconSize(arrowSize)
+        }
+        arrowEndMarker?.let { marker ->
+            marker.setIconColor(tint)
+            marker.setIconOpacity(opacity)
+            marker.setIconSize(arrowSize)
+        }
+        requestMapRepaint()
+    }
+
+    /** 线帽类型切换或尚未创建 Marker 时，全量重建端点标记。 */
+    fun rebuildCapMarkers(points: List<LatLng>) {
         if (mode != LineMode.CAPS) return
         clearCapMarkers()
         if (points.size < 2) return
         mapView?.getMapAsync { map ->
             val engine = map.getOverlayEngine()
+            val opacity = strokeOpacity.coerceIn(0f, 1f)
             if (startCap == LINE_CAP_CUSTOM) {
                 customStartMarker = addCustomCapMarker(
                     engine, context,
                     anchor = points.first(), neighbor = points[1],
                     strokeColor = strokeColor,
+                    strokeOpacity = opacity,
                 )
             }
             if (endCap == LINE_CAP_CUSTOM) {
@@ -256,6 +308,7 @@ internal fun LineBottomDetailPanel(
                     engine, context,
                     anchor = points.last(), neighbor = points[points.size - 2],
                     strokeColor = strokeColor,
+                    strokeOpacity = opacity,
                 )
             }
             if (startCap == LINE_CAP_ARROW) {
@@ -263,6 +316,7 @@ internal fun LineBottomDetailPanel(
                     engine, context,
                     anchor = points.first(), neighbor = points[1],
                     strokeColor = strokeColor,
+                    strokeOpacity = opacity,
                     strokePx = strokeWeight,
                     isStart = true,
                 )
@@ -272,6 +326,7 @@ internal fun LineBottomDetailPanel(
                     engine, context,
                     anchor = points.last(), neighbor = points[points.size - 2],
                     strokeColor = strokeColor,
+                    strokeOpacity = opacity,
                     strokePx = strokeWeight,
                     isStart = false,
                 )
@@ -300,7 +355,29 @@ internal fun LineBottomDetailPanel(
         val line = previewLine ?: return@LaunchedEffect
         val points = parseLineLatLngs(latLngs)
         applyPreviewToLine(line)
-        syncLineCapMarkers(points)
+        if (mode != LineMode.CAPS) {
+            clearCapMarkers()
+            return@LaunchedEffect
+        }
+        val hasCapMarker = startCap == LINE_CAP_ARROW || endCap == LINE_CAP_ARROW ||
+            startCap == LINE_CAP_CUSTOM || endCap == LINE_CAP_CUSTOM
+        if (!hasCapMarker) {
+            clearCapMarkers()
+            return@LaunchedEffect
+        }
+        if (points.size < 2) {
+            clearCapMarkers()
+            capGeometryKey = ""
+            return@LaunchedEffect
+        }
+        val newGeometryKey = "$latLngs|$startCap|$endCap"
+        val geometryChanged = newGeometryKey != capGeometryKey
+        if (geometryChanged || !capMarkersMatchSelection()) {
+            capGeometryKey = newGeometryKey
+            rebuildCapMarkers(points)
+        } else {
+            updateCapMarkersAppearance()
+        }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -567,14 +644,8 @@ internal fun LineBottomDetailPanel(
                         dashArrayStr.split(",").mapNotNull { it.trim().toFloatOrNull() }.toFloatArray()
                     } else null
 
-                    val effectiveStartCap = when (startCap) {
-                        LINE_CAP_CUSTOM, LINE_CAP_ARROW -> LineCapType.NONE
-                        else -> startCap
-                    }
-                    val effectiveEndCap = when (endCap) {
-                        LINE_CAP_CUSTOM, LINE_CAP_ARROW -> LineCapType.NONE
-                        else -> endCap
-                    }
+                    val effectiveStartCap = engineCapForSelection(startCap)
+                    val effectiveEndCap = engineCapForSelection(endCap)
 
                     val options = LineOptions()
                         .withLatLngs(pts)
@@ -643,7 +714,7 @@ internal fun LineBottomDetailPanel(
                         true
                     })
 
-                    syncLineCapMarkers(pts)
+                    rebuildCapMarkers(pts)
                     map.moveCameraToFitPolyline(pts)
                 }
             },
@@ -666,18 +737,25 @@ private fun linePatternBitmap(context: Context, imageId: String): Bitmap? =
 private fun loadDrawableBitmap(context: Context, @DrawableRes res: Int): Bitmap? =
     ContextCompat.getDrawable(context, res)?.let(BitmapUtils::getBitmapFromDrawable)
 
+private fun parseStrokeTint(strokeColor: String): Int {
+    val c = strokeColor.trim()
+    if (c.isEmpty()) return android.graphics.Color.BLACK
+    return try {
+        android.graphics.Color.parseColor(c)
+    } catch (e: IllegalArgumentException) {
+        android.graphics.Color.BLACK
+    }
+}
+
 private fun addCustomCapMarker(
     engine: MapOverlayEngine,
     context: Context,
     anchor: LatLng,
     neighbor: LatLng,
     strokeColor: String,
+    strokeOpacity: Float = 1f,
 ): Marker? {
-    val tint = try {
-        android.graphics.Color.parseColor(strokeColor.trim())
-    } catch (e: IllegalArgumentException) {
-        android.graphics.Color.BLACK
-    }
+    val tint = parseStrokeTint(strokeColor)
 
     val dLat = anchor.latitude - neighbor.latitude
     val dLng = anchor.longitude - neighbor.longitude
@@ -694,6 +772,7 @@ private fun addCustomCapMarker(
         .withLatLng(anchor)
         .withIconResource(R.drawable.star, context, true)
         .withIconColor(tint)
+        .withIconOpacity(strokeOpacity.coerceIn(0f, 1f))
         .withIconSize(0.15f)
         .withIconAnchor(MarkerAnchorType.CENTER)
         .withIconOffset(offsetX, offsetY)
@@ -710,13 +789,10 @@ private fun addArrowCapMarker(
     neighbor: LatLng,
     strokeColor: String,
     strokePx: Float,
+    strokeOpacity: Float = 1f,
     isStart: Boolean,
 ): Marker? {
-    val tint = try {
-        android.graphics.Color.parseColor(strokeColor.trim())
-    } catch (e: IllegalArgumentException) {
-        android.graphics.Color.BLACK
-    }
+    val tint = parseStrokeTint(strokeColor)
 
     val dLat = anchor.latitude - neighbor.latitude
     val dLng = anchor.longitude - neighbor.longitude
@@ -733,6 +809,7 @@ private fun addArrowCapMarker(
         .withLatLng(anchor)
         .withIconResource(drawableRes, context, true)
         .withIconColor(tint)
+        .withIconOpacity(strokeOpacity.coerceIn(0f, 1f))
         .withIconSize(iconSize)
         .withIconAnchor(MarkerAnchorType.CENTER)
         .withIconRotation(rotation)
