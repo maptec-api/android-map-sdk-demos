@@ -7,41 +7,37 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.widget.Toast
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberBottomSheetScaffoldState
+import com.maptec.applied.demo.ui.screens.common.ColorPickerField
+import com.maptec.applied.demo.ui.screens.common.DemoNumericSliderField
+import com.maptec.applied.demo.ui.screens.common.formatDemoSliderValue
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.maptec.applied.camera.CameraUpdateFactory
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.map.Mapview
 import com.maptec.applied.demo.LOG_MODULE
+import com.maptec.applied.demo.ui.screens.common.DemoPanelColumn
+import com.maptec.applied.demo.ui.screens.common.DemoPanelScaffold
+import com.maptec.applied.demo.ui.screens.common.LocalDemoConfigPanelController
 import com.maptec.applied.geometry.LatLng
 import com.maptec.applied.javabase.log.LoggerFactory
 import com.maptec.applied.maps.MapView
@@ -51,8 +47,7 @@ import com.maptec.applied.maps.animation.Animation
 import com.maptec.applied.maps.animation.AnimationCallbacks
 import com.maptec.applied.maps.animation.AnimationSet
 import com.maptec.applied.maps.animation.MapAnimationCurve
-import com.maptec.applied.maps.animation.PulsatingAnimation
-import com.maptec.applied.maps.animation.RepeatMode
+import com.maptec.applied.maps.animation.RadiusAnimation
 import com.maptec.applied.maps.animation.ScanningAnimation
 import com.maptec.applied.maps.overlay.MapOverlayEngine
 import com.maptec.applied.maps.overlay.OnOverlayClickListener
@@ -60,7 +55,6 @@ import com.maptec.applied.maps.overlay.OnOverlayLongClickListener
 import com.maptec.applied.maps.overlay.circle.Circle
 import com.maptec.applied.maps.overlay.circle.CircleOptions
 import com.maptec.applied.utils.BitmapUtils
-import kotlinx.coroutines.launch
 
 internal class BasicCircleState {
     var latLng by mutableStateOf("1.4,103.75")
@@ -87,6 +81,119 @@ internal class BasicCircleState {
 
 @Composable
 internal fun rememberBasicCircleState(): BasicCircleState = remember { BasicCircleState() }
+
+/** 将 [state] 的基础样式实时应用到已有 [circle]（用于滑块实时预览）。 */
+internal fun applyBasicCircleProps(circle: Circle, state: BasicCircleState) {
+    if (!state.isValid) return
+    parseCircleLatLng(state.latLng)?.let { runCatching { circle.setCenter(it) } }
+    state.radius.toDoubleOrNull()?.let { runCatching { circle.setRadius(it) } }
+    runCatching { circle.setFillColor(state.color) }
+    state.opacity.toFloatOrNull()?.takeIf { it in 0f..1f }?.let { runCatching { circle.setFillOpacity(it) } }
+    runCatching { circle.setStrokeColor(state.strokeColor) }
+    state.strokeWidth.toFloatOrNull()?.let { runCatching { circle.setStrokeWeight(it) } }
+    state.strokeOpacity.toFloatOrNull()?.takeIf { it in 0f..1f }?.let { runCatching { circle.setStrokeOpacity(it) } }
+}
+
+/**
+ * 通用基础参数手动排版（坐标输入 + 半径/填充/描边滑块 + 颜色选择器）。
+ *
+ * 滑块范围：半径 1~500，填充/描边透明度 0~1，描边宽度 0~20。
+ */
+@Composable
+internal fun CircleCommonSliders(
+    state: BasicCircleState,
+    radiusLabelRes: Int = R.string.circle_input_radius_pixel,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        OutlinedTextField(
+            value = state.latLng,
+            onValueChange = { state.latLng = it },
+            label = { Text(stringResource(R.string.circle_input_latlng_label)) },
+            supportingText = state.latLngError?.let { { Text(it, color = Color.Red) } },
+            isError = state.latLngError != null,
+            modifier = Modifier.fillMaxWidth().testTag("circle_input_latlng"),
+        )
+
+        DemoNumericSliderField(
+            label = "${stringResource(radiusLabelRes)}: ${state.radius}",
+            value = state.radius.toFloatOrNull()?.coerceIn(1f, 500f) ?: 120f,
+            valueText = state.radius,
+            onValueChange = { state.radius = formatDemoSliderValue(it) },
+            onValueTextChange = { state.radius = it },
+            valueRange = 1f..500f,
+            rangeStartLabel = "1",
+            rangeEndLabel = "500",
+            isError = state.radiusError != null,
+            errorText = state.radiusError,
+            testTag = "circle_input_radius",
+        )
+
+        ColorPickerField(
+            value = state.color,
+            onValueChange = { state.color = it },
+            label = stringResource(R.string.circle_input_fill_color),
+            supportingText = state.colorError?.let { { Text(it, color = Color.Red) } },
+            isError = state.colorError != null,
+            modifier = Modifier.fillMaxWidth(),
+            testTag = "circle_input_color",
+        )
+
+        DemoNumericSliderField(
+            label = "${stringResource(R.string.circle_input_fill_opacity)}: ${state.opacity}",
+            value = state.opacity.toFloatOrNull()?.coerceIn(0f, 1f) ?: 0.5f,
+            valueText = state.opacity,
+            onValueChange = { state.opacity = formatDemoSliderValue(it) },
+            onValueTextChange = { state.opacity = it },
+            valueRange = 0f..1f,
+            rangeStartLabel = "0",
+            rangeEndLabel = "1",
+            isError = state.opacityError != null,
+            errorText = state.opacityError,
+            testTag = "circle_input_opacity",
+        )
+
+        ColorPickerField(
+            value = state.strokeColor,
+            onValueChange = { state.strokeColor = it },
+            label = stringResource(R.string.circle_input_stroke_color),
+            supportingText = state.strokeColorError?.let { { Text(it, color = Color.Red) } },
+            isError = state.strokeColorError != null,
+            modifier = Modifier.fillMaxWidth(),
+            testTag = "circle_input_stroke_color",
+        )
+
+        DemoNumericSliderField(
+            label = "${stringResource(R.string.circle_input_stroke_width)}: ${state.strokeWidth}",
+            value = state.strokeWidth.toFloatOrNull()?.coerceIn(0f, 20f) ?: 2f,
+            valueText = state.strokeWidth,
+            onValueChange = { state.strokeWidth = formatDemoSliderValue(it) },
+            onValueTextChange = { state.strokeWidth = it },
+            valueRange = 0f..20f,
+            rangeStartLabel = "0",
+            rangeEndLabel = "20",
+            isError = state.strokeWidthError != null,
+            errorText = state.strokeWidthError,
+            testTag = "circle_input_stroke_width",
+        )
+
+        DemoNumericSliderField(
+            label = "${stringResource(R.string.circle_input_stroke_opacity)}: ${state.strokeOpacity}",
+            value = state.strokeOpacity.toFloatOrNull()?.coerceIn(0f, 1f) ?: 0.8f,
+            valueText = state.strokeOpacity,
+            onValueChange = { state.strokeOpacity = formatDemoSliderValue(it) },
+            onValueTextChange = { state.strokeOpacity = it },
+            valueRange = 0f..1f,
+            rangeStartLabel = "0",
+            rangeEndLabel = "1",
+            isError = state.strokeOpacityError != null,
+            errorText = state.strokeOpacityError,
+            testTag = "circle_input_stroke_opacity",
+        )
+    }
+}
 
 @Composable
 internal fun BasicCircleInputs(
@@ -206,66 +313,71 @@ internal fun BasicCircleState.applyTo(
         .withDraggable(draggable)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CircleScaffold(
-    sheetPeekHeight: Dp = 48.dp,
-    sheetContent: @Composable (mapView: MapView?, mapStyle: Style?, scaffoldState: BottomSheetScaffoldState) -> Unit,
+    defaultOptions: (() -> CircleOptions?)? = null,
+    onDefaultCircleAdded: (Circle, MapOverlayEngine) -> Unit = { _, _ -> },
+    sheetContent: @Composable (mapView: MapView?, mapStyle: Style?) -> Unit,
 ) {
     var mapView by remember { mutableStateOf<MapView?>(null) }
     var mapStyle by remember { mutableStateOf<Style?>(null) }
-    val scaffoldState = rememberBottomSheetScaffoldState()
+    var defaultDrawn by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        scaffoldState.bottomSheetState.expand()
-    }
-
-    BottomSheetScaffold(
-        scaffoldState = scaffoldState,
-        sheetPeekHeight = sheetPeekHeight,
-        sheetMaxWidth = Dp.Unspecified,
-        sheetDragHandle = { BottomSheetDefaults.DragHandle() },
-        sheetContent = { sheetContent(mapView, mapStyle, scaffoldState) },
-        content = { padding ->
+    DemoPanelScaffold(
+        sheetContent = {
+            DemoPanelColumn {
+                sheetContent(mapView, mapStyle)
+            }
+        },
+        content = {
             Mapview(
-                modifier = Modifier.fillMaxSize().padding(padding),
+                modifier = Modifier.fillMaxSize(),
                 onMapReady = { view, map ->
                     mapView = view
-                    map.getStyle { style -> mapStyle = style }
-                }
+                    map.getStyle { style ->
+                        mapStyle = style
+                        if (!defaultDrawn && defaultOptions != null) {
+                            defaultOptions.invoke()?.let { options ->
+                                defaultDrawn = true
+                                val engine = map.getOverlayEngine()
+                                engine.deleteAllCircles()
+                                val circle = engine.addCircle(options)
+                                attachDebugListeners(circle, view.context)
+                                onDefaultCircleAdded(circle, engine)
+                                options.center?.let { center ->
+                                    map.moveCamera(
+                                        CameraUpdateFactory.newLatLngZoom(center, 15.0),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
             )
-        }
+        },
     )
 }
 
 @Composable
 internal fun CirclePanelColumn(content: @Composable () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-    ) { content() }
+    content()
 }
 
 /**
- * 通用「绘制」按钮：清空旧圆 → 用 [buildOptions] 构造选项 → 落点居中 → 折叠面板。
+ * 通用「绘制」按钮：清空旧圆 → 用 [buildOptions] 构造选项 → 落点居中 → 关闭配置面板。
  *
  * @param buildOptions 返回完整 [CircleOptions]；若为 null 跳过绘制（用于校验失败提示）。
  * @param onCircleAdded 绘制成功后回调，便于注册动画或额外监听。
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DrawCircleButton(
     state: BasicCircleState,
     mapView: MapView?,
-    scaffoldState: BottomSheetScaffoldState,
     enabled: Boolean = state.isValid,
     buildOptions: () -> CircleOptions? = { state.applyTo(CircleOptions()) },
     onCircleAdded: (Circle, MapOverlayEngine) -> Unit = { _, _ -> },
 ) {
-    val scope = rememberCoroutineScope()
+    val configPanelController = LocalDemoConfigPanelController.current
     val context = LocalContext.current
     Button(
         onClick = {
@@ -282,10 +394,10 @@ internal fun DrawCircleButton(
                     CameraUpdateFactory.newLatLngZoom(
                         LatLng(center.latitude, center.longitude),
                         15.0,
-                    )
+                    ),
                 )
             }
-            scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+            configPanelController.close()
         },
         enabled = enabled && mapView != null,
         modifier = Modifier
@@ -316,7 +428,8 @@ internal fun applyScanStyleToCircleOptions(
     fillColor: String,
     scanSectorColorInput: String,
     scanSectorAngleInput: String,
-    scanBaseImageId: String?,
+    scanBaseImageBitmap: android.graphics.Bitmap?,
+    scanBaseImageId: String = "scan_base_image",
 ): CircleOptions {
     if (!scanEnabled) return options
     val sectorAngle = scanSectorAngleInput.toFloatOrNull()?.takeIf { it > 0f } ?: 60f
@@ -326,9 +439,8 @@ internal fun applyScanStyleToCircleOptions(
         .withScanSectorAngle(sectorAngle)
         .withScanSectorColor(sectorColor)
         .withScanRotationAngle(0f)
-    val baseId = scanBaseImageId?.trim().orEmpty()
-    if (baseId.isNotEmpty()) {
-        result = result.withScanBaseImage(baseId)
+    if (scanBaseImageBitmap != null) {
+        result = result.withScanBaseImage(scanBaseImageBitmap, scanBaseImageId)
     }
     return result
 }
@@ -343,19 +455,33 @@ internal fun buildScanRotationAnimation(scanSpeed: String): Animation? {
 internal fun buildPulseAnimation(
     min: Double,
     max: Double,
-    durationMs: Long,
+    expandDurationMs: Long,
     label: String,
+    onWaveComplete: ((Boolean) -> Unit)? = null,
 ): Animation {
-    val pulsating = PulsatingAnimation(min, max, durationMs)
+    val fadeDurationMs = (expandDurationMs * 0.55f).toLong().coerceIn(1L, expandDurationMs)
+    val radiusAnim = RadiusAnimation(min, max).apply { setDurationMs(expandDurationMs) }
+    val baseListener = circleAnimationCallbacks(label)
     return AnimationSet().apply {
-        setDurationMs(durationMs)
-        // Native 只读根节点 getCurve()；必须把 PulsatingAnimation 上的 curve 设到 AnimationSet。
-        setCurve(MapAnimationCurve.EASE_IN_OUT)
-        setRepeatMode(RepeatMode.REVERSE)
-        setRepeatCount(-1)
-        addAnimation(pulsating)
-        addAnimation(AlphaAnimation(0.5f, 0f).apply { setDurationMs(durationMs) })
-        setListener(circleAnimationCallbacks(label))
+        setDurationMs(expandDurationMs)
+        // Native 只读根节点 getCurve()；必须把 curve 设到 AnimationSet。
+        setCurve(MapAnimationCurve.LINEAR)
+        setRepeatCount(0)
+        addAnimation(radiusAnim)
+        addAnimation(AlphaAnimation(0.35f, 0f).apply { setDurationMs(fadeDurationMs) })
+        setListener(
+            object : AnimationCallbacks {
+                override fun onStart() = baseListener.onStart()
+                override fun onUpdate(progress: Float) = baseListener.onUpdate(progress)
+                override fun onPause() = baseListener.onPause()
+                override fun onResume() = baseListener.onResume()
+                override fun onComplete(finished: Boolean) {
+                    baseListener.onComplete(finished)
+                    onWaveComplete?.invoke(finished)
+                }
+                override fun onCancel() = baseListener.onCancel()
+            },
+        )
     }
 }
 
@@ -401,10 +527,9 @@ internal fun circleAnimationCallbacks(label: String): AnimationCallbacks =
         }
     }
 
-fun addImage(context: Context, drawableRes: Int, iconId: String, style: Style) {
-    val drawable = ContextCompat.getDrawable(context, drawableRes) ?: return
-    val bitmap = drawableToBitmap(drawable) ?: return
-    style.addImage(iconId, bitmap, false)
+internal fun loadDrawableAsBitmap(context: Context, drawableRes: Int): Bitmap? {
+    val drawable = ContextCompat.getDrawable(context, drawableRes) ?: return null
+    return drawableToBitmap(drawable)
 }
 
 /**

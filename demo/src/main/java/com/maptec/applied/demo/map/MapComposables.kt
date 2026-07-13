@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.viewinterop.AndroidView
 import com.maptec.applied.camera.CameraPosition
@@ -14,8 +15,6 @@ import com.maptec.applied.demo.Constants
 import com.maptec.applied.geometry.LatLng
 import com.maptec.applied.maps.MaptecMap
 import com.maptec.applied.maps.MapView
-import com.maptec.applied.demo.map.defaultDemoMapOptions
-import com.maptec.applied.demo.map.MapViewLifecycleEffect
 import com.maptec.applied.maps.Style
 import com.maptec.applied.maps.StyleOption
 import com.maptec.applied.maps.StyleStatusCallback
@@ -28,22 +27,20 @@ fun Mapview(
     onMapReady: (MapView, MaptecMap) -> Unit = { _, _ -> },
     onStyleRendered: (MapView, MaptecMap, Style) -> Unit = { _, _, _ -> },
 ) {
-    var mapView by remember { mutableStateOf<MapView?>(null) }
-    var isStyleRendered by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var isStyleRendered by remember(cameraPosition) { mutableStateOf(false) }
 
-    mapView?.let { MapViewLifecycleEffect(it) }
-
-    AndroidView(
-        factory = { context ->
+    val mapView = remember(cameraPosition) {
         val options = defaultDemoMapOptions(context).apply {
             camera(cameraPosition)
         }
         MapView(context, options).apply {
             onCreate(null)
-            mapView = this
+            tag = "mapView"
             getMapAsync { map ->
                 map.setStyle(StyleOption(Constants.DEFAULT_STYLE_ID), object : StyleStatusCallback {
                     override fun onStyleLoaded(style: Style?) {}
+
                     override fun onStyleRendered(style: Style?) {
                         isStyleRendered = true
                         if (style != null) {
@@ -55,11 +52,16 @@ fun Mapview(
                 })
                 onMapReady(this, map)
             }
-        }.apply { tag = "mapView" }
-    }, update = { _ -> }, modifier = modifier.testTag("mapView")
+        }
+    }
+
+    MapViewLifecycleEffect(mapView)
+
+    AndroidView(
+        factory = { mapView },
+        modifier = modifier.testTag("mapView"),
     )
 
-    // 用于测试是否渲染
     if (isStyleRendered) {
         Box(modifier = Modifier.testTag("mapRendered"))
     }

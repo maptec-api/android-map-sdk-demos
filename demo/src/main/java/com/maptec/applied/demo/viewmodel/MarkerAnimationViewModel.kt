@@ -1,8 +1,11 @@
 package com.maptec.applied.demo.viewmodel
 
 import android.content.Context
+import android.graphics.PointF
+import android.graphics.RectF
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.graphics.Color as AndroidColor
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -20,14 +23,11 @@ import com.maptec.applied.maps.animation.OffsetAnimation
 import com.maptec.applied.maps.animation.RepeatMode
 import com.maptec.applied.maps.animation.ScaleAnimation
 import com.maptec.applied.maps.overlay.MapOverlayEngine
-import com.maptec.applied.maps.overlay.OverlayKind
-import com.maptec.applied.maps.overlay.marker.MarkLayerPlacementMode
 import com.maptec.applied.maps.overlay.marker.Marker
 import com.maptec.applied.maps.overlay.marker.MarkerAnchorType
 import com.maptec.applied.maps.overlay.marker.MarkerOptions
-import com.maptec.applied.maps.overlay.marker.NativeMarkLayerOverlay
 import com.maptec.applied.maps.overlay.marker.OnMarkerDragListener
-import com.maptec.applied.style.layers.Property
+import com.maptec.applied.style.Property
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,10 +37,8 @@ import kotlinx.coroutines.flow.asStateFlow
  *
  * 在基础 marker 功能（default_pin 添加 / 清除）之上，演示三类动画：
  *   1. 进入动画（none / fadeIn / drop / bounce）+ duration，开始 / 结束按钮，作用于全部 marker
- *   2. 点选动画（none / bounce）：点击地图空白处添加 Marker 并播放对应动画
+ *   2. 点选动画（none / bounce）：点击已有 Marker 触发；空白处点击仅添加 Marker
  *   3. 消失动画（none / fadeOut / scaleDown）+ duration，执行一次，播完后自动移除全部 marker
- *
- * 顶部「开始 / 结束」按钮共用，抽屉内开关切换进入 / 消失模式（互斥）。
  */
 class MarkerAnimationViewModel : ViewModel() {
 
@@ -58,8 +56,7 @@ class MarkerAnimationViewModel : ViewModel() {
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
     // ========== 默认坐标 ==========
-    private val _defaultLatLng = MutableStateFlow(DEFAULT_LAT_LNG)
-    val defaultLatLng: StateFlow<String> = _defaultLatLng.asStateFlow()
+    private val defaultLatLngText = DEFAULT_LAT_LNG
 
     // ========== 动画选择状态 ==========
     private val _enterType = MutableStateFlow(NONE)
@@ -77,14 +74,10 @@ class MarkerAnimationViewModel : ViewModel() {
     private val _disappearDurationMs = MutableStateFlow(600L)
     val disappearDurationMs: StateFlow<Long> = _disappearDurationMs.asStateFlow()
 
-    /** 顶部开始/结束按钮当前控制的动画模式（进入 / 消失，互斥）。 */
-    private val _mainAnimationMode = MutableStateFlow(MainAnimationMode.ENTER)
-    val mainAnimationMode: StateFlow<MainAnimationMode> = _mainAnimationMode.asStateFlow()
-
     private var mapLibreMapRef: MaptecMap? = null
-    private var mapViewRef: MapView? = null
     private var contextRef: Context? = null
     private var mapStyleReady = false
+    private var markerOverlayConfigured = false
 
     // ========== 运行中的动画句柄 ==========
     /** 每个 marker 独立的进入动画句柄。 */
@@ -96,21 +89,35 @@ class MarkerAnimationViewModel : ViewModel() {
 
     private var mapClickListener: MaptecMap.OnMapClickListener? = null
 
-    // 记录是否有图层级别的动画 BEGIN 过（用于判断是否需要 END）
-    private var hasActiveLayerAnimation = false
+    /** 防止地图点击与 Marker 点击在同一手势内重复触发点选动画。 */
+    private var lastSelectHandledMarkerId: String? = null
+    private var lastSelectHandledTimeMs: Long = 0L
+    /** 地图点击添加 Marker 后，同一次手势可能误触发新 Marker 的 onClick。 */
+    private var justAddedFromMapClickMarkerId: String? = null
+    private var justAddedFromMapClickTimeMs: Long = 0L
 
     private val mainHandler = Handler(Looper.getMainLooper())
-    /** 消失动画完成后移除 marker 的延迟任务（不依赖 native AnimationCallbacks，避免 JNI 回调崩溃）。 */
+    /** 消失动画完成后移除 marker 的延迟任务 。 */
     private var disappearRemovalRunnable: Runnable? = null
 
     companion object {
         private const val TAG = "MarkerAnimationVM"
         private val LOG = LoggerFactory.getLogger(LOG_MODULE).withTag(TAG)
-        private const val DEFAULT_PIN = "default_pin"
-        private const val MARKER_OVERLAY_ID = "marker_overlay_main"
         private const val DEFAULT_LAT_LNG = "1.4, 103.75"
         private const val DEFAULT_ICON_SIZE = 2.0f
         private const val DEFAULT_ICON_OPACITY = 1.0f
+
+        /** default_pin 矢量图尺寸（与 res/drawable/default_pin.xml 一致）。 */
+        private const val MARKER_ICON_DP = 40f
+        /** 与 addMarkerInternal 中 withTextSize(16) 一致。 */
+        private const val MARKER_TEXT_OFFSET_DP = 16f
+        /** 单行文本大致高度。 */
+        private const val MARKER_TEXT_HEIGHT_DP = 18f
+        /** 在图标/文字矩形外四周扩展的热区（dp）。 */
+        private const val MARKER_HIT_PADDING_DP = 16f
+        private const val SELECT_DEDUP_WINDOW_MS = 300L
+        /** 地图点击刚添加的 Marker 会同步收到 click，需短暂忽略以免误播点选动画。 */
+        private const val JUST_ADDED_SELECT_SUPPRESS_MS = 400L
 
         const val NONE = "none"
 
@@ -118,8 +125,6 @@ class MarkerAnimationViewModel : ViewModel() {
         private const val PROP_ICON_OFFSET = "iconOffset"
         private const val PROP_ICON_OPACITY = "iconOpacity"
         private const val PROP_ICON_SIZE = "iconSize"
-
-        private val MARKER_ANIM_PROPS = listOf(PROP_ICON_OFFSET, PROP_ICON_OPACITY, PROP_ICON_SIZE)
 
         /** icon-offset 单位为 em；-120 会飞出屏幕。drop 下落幅度较小；bounce 需更明显。 */
         private const val ENTER_DROP_OFFSET_FROM = -3.0f
@@ -149,12 +154,6 @@ class MarkerAnimationViewModel : ViewModel() {
         )
     }
 
-    /** 顶部按钮控制的动画模式。 */
-    enum class MainAnimationMode {
-        ENTER,
-        DISAPPEAR,
-    }
-
     // ========== 动画选择 Setter ==========
     fun setEnterType(value: String) { _enterType.value = value }
     fun setEnterDurationMs(value: Long) { _enterDurationMs.value = value.coerceIn(100L, 10_000L) }
@@ -163,41 +162,10 @@ class MarkerAnimationViewModel : ViewModel() {
     fun setDisappearType(value: String) { _disappearType.value = value }
     fun setDisappearDurationMs(value: Long) { _disappearDurationMs.value = value.coerceIn(100L, 10_000L) }
 
-    fun setMainAnimationMode(mode: MainAnimationMode) {
-        if (_mainAnimationMode.value == mode) return
-        when (_mainAnimationMode.value) {
-            MainAnimationMode.ENTER -> if (enterHandles.isNotEmpty()) endEnterAnimation()
-            MainAnimationMode.DISAPPEAR -> if (disappearHandles.isNotEmpty()) endDisappearAnimation()
-        }
-        _mainAnimationMode.value = mode
-    }
-
-    /** 顶部「开始动画」：按当前模式启动进入或消失动画。 */
-    fun startMainAnimation() {
-        when (_mainAnimationMode.value) {
-            MainAnimationMode.ENTER -> {
-                if (disappearHandles.isNotEmpty()) endDisappearAnimation()
-                startEnterAnimation()
-            }
-            MainAnimationMode.DISAPPEAR -> {
-                if (enterHandles.isNotEmpty()) endEnterAnimation()
-                startDisappearAnimation()
-            }
-        }
-    }
-
-    /** 顶部「结束动画」：按当前模式结束进入或消失动画。 */
-    fun endMainAnimation() {
-        when (_mainAnimationMode.value) {
-            MainAnimationMode.ENTER -> endEnterAnimation()
-            MainAnimationMode.DISAPPEAR -> endDisappearAnimation()
-        }
-    }
-
     // ========== Marker 添加 ==========
 
-    /** 点击地图空白处：在点击位置添加 Marker 并启动点选动画。 */
-    fun onMapClickAddMarker(latLng: LatLng) {
+    /** 点击地图空白处：在点击位置添加 Marker（不触发点选动画）。 */
+    private fun onMapClickAddMarker(latLng: LatLng) {
         val context = contextRef ?: run {
             _toastMessage.value = "地图未就绪"
             return
@@ -205,19 +173,18 @@ class MarkerAnimationViewModel : ViewModel() {
         addMarkerInternal(
             latLng,
             defaultPinOptions(context),
-            applySelectAnimation = true,
+            fromMapClick = true,
         )
     }
 
     /** 添加 Marker —— 使用默认设置，按 default_pin 图标类型添加。 */
     fun addMarker() {
         val context = contextRef ?: run { _toastMessage.value = "地图未就绪"; return }
-        val latLng = parseLatLng(_defaultLatLng.value)
+        val latLng = parseLatLng(defaultLatLngText)
         if (latLng == null) { _toastMessage.value = "请输入有效的位置坐标 (lat,lng)"; return }
         addMarkerInternal(
             latLng,
             defaultPinOptions(context),
-            applySelectAnimation = false,
         )
     }
 
@@ -228,7 +195,7 @@ class MarkerAnimationViewModel : ViewModel() {
     private fun addMarkerInternal(
         latLng: LatLng,
         baseOpts: MarkerOptions,
-        applySelectAnimation: Boolean,
+        fromMapClick: Boolean = false,
     ) {
         val map = mapLibreMapRef ?: run { _toastMessage.value = "地图未就绪"; return }
         if (!mapStyleReady) {
@@ -243,7 +210,7 @@ class MarkerAnimationViewModel : ViewModel() {
             .withLatLng(latLng)
             .withIconSize(DEFAULT_ICON_SIZE)
             .withIconOpacity(DEFAULT_ICON_OPACITY)
-            .withIconAnchor(Property.ICON_ANCHOR_BOTTOM)
+            .withIconAnchor(MarkerAnchorType.BOTTOM)
             // 文本：注意 textSize/textColor 缺一就显示不出来
             .withText("Marker ${_markers.value.size + 1}")
             .withTextSize(16)
@@ -255,66 +222,45 @@ class MarkerAnimationViewModel : ViewModel() {
             .withClickable(true)
 
         val marker = map.getOverlayEngine().addMarker(opts)
-        configureMarkerOverlayForDemo(map)
         wireMarkerListeners(marker)
         ensureMarkerDisplayState(marker)
         map.triggerRepaint()
+        requestRepaintIfAnimationsActive()
         _markers.value = _markers.value + marker
-        if (applySelectAnimation && _selectType.value != NONE) {
-            startSelectAnimation(marker)
-            _selectedMarkerId.value = marker.id
-            val animLabel = SELECT_OPTIONS.find { it.first == _selectType.value }?.second ?: _selectType.value
-            _toastMessage.value = "已在 (${"%.4f".format(latLng.latitude)}, ${"%.4f".format(latLng.longitude)}) " +
-                "添加 Marker，点选动画：$animLabel"
+        if (fromMapClick) {
+            justAddedFromMapClickMarkerId = marker.id
+            justAddedFromMapClickTimeMs = SystemClock.uptimeMillis()
+        }
+        _toastMessage.value = if (fromMapClick) {
+            "已在 (${"%.4f".format(latLng.latitude)}, ${"%.4f".format(latLng.longitude)}) 添加 Marker"
         } else {
-            _toastMessage.value = if (applySelectAnimation) {
-                "已在 (${"%.4f".format(latLng.latitude)}, ${"%.4f".format(latLng.longitude)}) 添加 Marker"
-            } else {
-                "已添加 Marker: ${marker.id.take(8)}"
-            }
+            "已添加 Marker: ${marker.id.take(8)}"
         }
     }
 
-    /** 新 Marker 不受进行中的图层级动画影响；无动画时不派发 END，避免干扰 native 默认渲染。 */
+    /** Demo：关闭 MarkLayer 符号碰撞，避免 pin 被底图 POI 挤掉而只剩文字。仅初始化一次。 */
+    private fun ensureMarkerOverlayConfigured(map: MaptecMap) {
+        if (markerOverlayConfigured) return
+        map.getOverlayEngine().setMarkerLayerCollisionEnabled(false)
+        markerOverlayConfigured = true
+    }
+
+    /** 有动画进行时额外补一帧重绘，避免 addMarker 的 GeoJSON 更新被动画帧排队拖后。 */
+    private fun requestRepaintIfAnimationsActive() {
+        if (enterHandles.isEmpty() && selectHandles.isEmpty() && disappearHandles.isEmpty()) return
+        mainHandler.post { mapLibreMapRef?.triggerRepaint() }
+    }
+
+    /** 新 Marker 不受进行中的图层级动画影响 */
     private fun ensureMarkerDisplayState(marker: Marker) {
         marker.iconSize = DEFAULT_ICON_SIZE
         marker.iconOpacity = DEFAULT_ICON_OPACITY
-
-    }
-
-    /** Demo：关闭 MarkLayer 符号碰撞，避免 pin 被底图 POI 挤掉而只剩文字。 */
-    private fun configureMarkerOverlayForDemo(map: MaptecMap) {
-        val engine = map.getOverlayEngine()
-        val nativePtr = map.nativeMapPtr
-        if (nativePtr == 0L) return
-        val layerGroupId = engine.layerGroupId(OverlayKind.MARKER)
-        NativeMarkLayerOverlay.nativeEnsureCreated(
-            nativePtr,
-            layerGroupId,
-            MARKER_OVERLAY_ID,
-            MarkLayerPlacementMode.POINT,
-        )
-        NativeMarkLayerOverlay.nativeSetOverlayOption(
-            nativePtr,
-            layerGroupId,
-            MARKER_OVERLAY_ID,
-            true,
-            true,
-            false,
-            true,
-        )
     }
 
     /** 给 marker 挂 click / drag listener。 */
     private fun wireMarkerListeners(marker: Marker) {
         marker.addOnClickListener { m ->
-            if (_selectType.value == NONE) {
-                _selectedMarkerId.value = m.id
-                return@addOnClickListener true
-            }
-            startSelectAnimation(m)
-            _selectedMarkerId.value = m.id
-            _toastMessage.value = "已重新触发点选动画: ${m.id.take(8)}"
+            onMarkerTappedForSelect(m)
             true
         }
         marker.addOnDragListener(object : OnMarkerDragListener {
@@ -394,14 +340,22 @@ class MarkerAnimationViewModel : ViewModel() {
 
     // ========== 点选动画 ==========
 
+    /** 停止单个 Marker 上正在进行的进入 / 消失 / 点选动画，并恢复默认显示状态。 */
+    private fun stopMarkerAnimations(marker: Marker) {
+        val engine = overlayEngine() ?: return
+        val id = marker.id
+        enterHandles.remove(id)?.let { engine.cancelAnimation(it) }
+        disappearHandles.remove(id)?.let { engine.cancelAnimation(it) }
+        cancelSelectAnimation(marker)
+        ensureMarkerDisplayState(marker)
+    }
+
     private fun startSelectAnimation(m: Marker) {
         when (_selectType.value) {
             NONE -> stopSelectAnimation(m)
             else -> {
                 val anim = buildSelectAnimation() ?: return
                 val prop = selectAnimProperty() ?: return
-                val engine = overlayEngine() ?: return
-                stopBounceAnimation(m)
                 LOG.i { "startSelectAnimation type=${_selectType.value} prop=$prop marker=${m.id.take(8)}" }
                 val handle = m.startAnimation(anim, 0L) ?: return
                 selectHandles[m.id] = handle
@@ -409,30 +363,22 @@ class MarkerAnimationViewModel : ViewModel() {
         }
     }
 
-    private fun stopSelectAnimation(m: Marker) {
-        stopBounceAnimation(m)
-        m.iconSize = DEFAULT_ICON_SIZE
-        m.iconOpacity = DEFAULT_ICON_OPACITY
+    private fun stopSelectAnimation(marker: Marker) {
+        cancelSelectAnimation(marker)
+        ensureMarkerDisplayState(marker)
     }
 
-    private fun stopBounceAnimation(m: Marker) {
-        val handle = selectHandles.remove(m.id)
-        val prop = selectAnimProperty()
-        val engine = overlayEngine()
-        if (handle != null && prop != null && engine != null) {
-            engine.cancelAnimation(handle)
-        }
+    private fun cancelSelectAnimation(marker: Marker) {
+        val handle = selectHandles.remove(marker.id) ?: return
+        overlayEngine()?.cancelAnimation(handle)
     }
 
     private fun stopAllSelectAnimations() {
-        val engine = overlayEngine()
-        val bounceHandles = selectHandles.values.toList()
+        val engine = overlayEngine() ?: return
+        val handles = selectHandles.values.toList()
         selectHandles.clear()
-        bounceHandles.forEach { handle -> engine?.cancelAnimation(handle) }
-        _markers.value.forEach { marker ->
-            marker.iconSize = DEFAULT_ICON_SIZE
-            marker.iconOpacity = DEFAULT_ICON_OPACITY
-        }
+        handles.forEach { engine.cancelAnimation(it) }
+        _markers.value.forEach { ensureMarkerDisplayState(it) }
     }
 
     private fun buildSelectAnimation(): Animation? {
@@ -523,9 +469,6 @@ class MarkerAnimationViewModel : ViewModel() {
     private fun removeMarkersAfterDisappearAnimation() {
         if (disappearHandles.isEmpty()) return
         disappearHandles.clear()
-        if (enterHandles.isEmpty()) {
-            hasActiveLayerAnimation = false
-        }
         removeAllMarkersNow("消失动画完成，已移除")
     }
 
@@ -534,8 +477,6 @@ class MarkerAnimationViewModel : ViewModel() {
         cancelDisappearRemovalTask()
         cancelEnterAnimations()
         cancelDisappearAnimations()
-        // 所有 marker 都要被删除了，清除图层动画标记
-        hasActiveLayerAnimation = false
         stopAllSelectAnimations()
         val engine = overlayEngine() ?: return
         val removedCount = _markers.value.size
@@ -606,15 +547,79 @@ class MarkerAnimationViewModel : ViewModel() {
         return null
     }
 
+    /** 点击 Marker：先停该 Marker 当前动画，再按配置播放点选动画。 */
+    private fun onMarkerTappedForSelect(marker: Marker) {
+        val now = SystemClock.uptimeMillis()
+        if (marker.id == justAddedFromMapClickMarkerId &&
+            now - justAddedFromMapClickTimeMs < JUST_ADDED_SELECT_SUPPRESS_MS
+        ) {
+            return
+        }
+        if (marker.id == lastSelectHandledMarkerId && now - lastSelectHandledTimeMs < SELECT_DEDUP_WINDOW_MS) {
+            return
+        }
+        lastSelectHandledMarkerId = marker.id
+        lastSelectHandledTimeMs = now
+
+        _selectedMarkerId.value = marker.id
+        stopMarkerAnimations(marker)
+        if (_selectType.value == NONE) {
+            _toastMessage.value = "已停止 Marker 动画: ${marker.id.take(8)}"
+            return
+        }
+        startSelectAnimation(marker)
+        _toastMessage.value = "已触发点选动画: ${marker.id.take(8)}"
+    }
+
+    /**
+     * 以底部锚点计算单个 Marker 的点击矩形：整图标 + 下方文本，四周略扩。
+     * default_pin 为 40dp 正方形，锚点在底部中心。
+     */
+    private fun markerHitRect(map: MaptecMap, marker: Marker): RectF {
+        val density = contextRef?.resources?.displayMetrics?.density ?: 1f
+        val scale = marker.iconSize / DEFAULT_ICON_SIZE
+        val padding = MARKER_HIT_PADDING_DP * density
+        val iconW = MARKER_ICON_DP * density * scale
+        val iconH = MARKER_ICON_DP * density * scale
+        val textBelow = (MARKER_TEXT_OFFSET_DP + MARKER_TEXT_HEIGHT_DP) * density
+
+        val anchor = map.projection.toScreenLocation(marker.latLng)
+        return RectF(
+            anchor.x - iconW / 2f - padding,
+            anchor.y - iconH - padding,
+            anchor.x + iconW / 2f + padding,
+            anchor.y + textBelow + padding,
+        )
+    }
+
+    private fun findMarkerAtScreen(map: MaptecMap, screen: PointF): Marker? {
+        for (marker in _markers.value.asReversed()) {
+            if (!marker.isClickable) continue
+            if (markerHitRect(map, marker).contains(screen.x, screen.y)) {
+                return marker
+            }
+        }
+        return null
+    }
+
+    /** 空白处点击添加 Marker；命中已有 Marker 区域时触发点选动画，不新增。 */
+    private fun handleMapClickForAddMarker(map: MaptecMap, screen: PointF, latLng: LatLng): Boolean {
+        findMarkerAtScreen(map, screen)?.let { marker ->
+            onMarkerTappedForSelect(marker)
+            return true
+        }
+        onMapClickAddMarker(latLng)
+        return true
+    }
+
     fun initSymbolManager(
         context: Context,
-        mapView: MapView,
-        mapLibreMap: MaptecMap,
+        @Suppress("UNUSED_PARAMETER") mapView: MapView,
+        mapTecMap: MaptecMap,
         @Suppress("UNUSED_PARAMETER") style: Style,
     ) {
-        val isNewMap = mapLibreMapRef !== mapLibreMap
-        mapLibreMapRef = mapLibreMap
-        mapViewRef = mapView
+        val isNewMap = mapLibreMapRef !== mapTecMap
+        mapLibreMapRef = mapTecMap
         contextRef = context
 
         if (isNewMap) {
@@ -623,17 +628,40 @@ class MarkerAnimationViewModel : ViewModel() {
             _selectedMarkerId.value = null
             _isDragging.value = false
             mapStyleReady = false
+            markerOverlayConfigured = false
         }
 
         mapStyleReady = true
+        ensureMarkerOverlayConfigured(mapTecMap)
 
-        mapClickListener?.let { mapLibreMap.removeOnMapClickListener(it) }
-        val listener = MaptecMap.OnMapClickListener { latLng ->
-            onMapClickAddMarker(latLng)
-            true
+        mapClickListener?.let { mapTecMap.removeOnMapClickListener(it) }
+        val listener = object : MaptecMap.OnMapClickListener {
+            override fun onMapClick(point: LatLng): Boolean {
+                val screen = mapTecMap.projection.toScreenLocation(point)
+                return handleMapClickForAddMarker(mapTecMap, screen, point)
+            }
+
+            override fun onMapClick(screen: PointF, point: LatLng): Boolean {
+                return handleMapClickForAddMarker(mapTecMap, screen, point)
+            }
         }
         mapClickListener = listener
-        mapLibreMap.addOnMapClickListener(listener)
+        mapTecMap.addOnMapClickListener(listener)
+    }
+
+    /** 停止全部 Marker 的进入 / 消失 / 点选动画，不删除 Marker。 */
+    fun stopAllAnimations() {
+        val hasActiveAnimations = enterHandles.isNotEmpty() ||
+            disappearHandles.isNotEmpty() ||
+            selectHandles.isNotEmpty() ||
+            disappearRemovalRunnable != null
+        if (!hasActiveAnimations) {
+            _toastMessage.value = "当前没有进行中的动画"
+            return
+        }
+        cancelAllAnimations()
+        _markers.value.forEach { ensureMarkerDisplayState(it) }
+        _toastMessage.value = "已停止全部动画"
     }
 
     fun clearMarkers() {
@@ -649,7 +677,6 @@ class MarkerAnimationViewModel : ViewModel() {
         cancelDisappearRemovalTask()
         cancelEnterAnimations()
         cancelDisappearAnimations()
-        hasActiveLayerAnimation = false
         stopAllSelectAnimations()
     }
 
@@ -665,7 +692,6 @@ class MarkerAnimationViewModel : ViewModel() {
         mapStyleReady = false
         contextRef = null
         mapLibreMapRef = null
-        mapViewRef = null
     }
 }
 

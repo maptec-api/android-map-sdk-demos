@@ -76,7 +76,7 @@ class GeocodeViewModel(
     private val _rectSouthWest = MutableStateFlow("")
     val rectSouthWest: StateFlow<String> = _rectSouthWest.asStateFlow()
 
-    private val _reverseLocation = MutableStateFlow("1.46878,103.80373")
+    private val _reverseLocation = MutableStateFlow("1.360879,103.732578")
     val reverseLocation: StateFlow<String> = _reverseLocation.asStateFlow()
 
     private val _reverseResultType = MutableStateFlow("premise")

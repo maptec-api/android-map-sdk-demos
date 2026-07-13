@@ -10,6 +10,11 @@ import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
 import com.maptec.applied.demo.ext.verifyMapViewSwitchToggle
 import org.junit.After
 import org.junit.Rule
@@ -46,12 +51,7 @@ class MapDoubleTapTiltResetScreenTest {
 
     private fun navigateToDoubleTapTiltResetScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_gesture)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_double_tap_tilt_reset))
-            .performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_map_gesture, R.string.map_item_double_tap_tilt_reset)
         composeTestRule.waitForIdle()
     }
 

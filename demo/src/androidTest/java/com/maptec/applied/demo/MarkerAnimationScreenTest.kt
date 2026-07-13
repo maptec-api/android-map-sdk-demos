@@ -4,7 +4,6 @@ import android.Manifest
 import android.os.Build
 import android.os.SystemClock
 import android.view.MotionEvent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -15,22 +14,21 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.click
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.maptec.applied.demo.ext.expandConfigPanel
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import com.maptec.applied.maps.MaptecMap
 import com.maptec.applied.maps.overlay.marker.Marker
-import com.maptec.applied.style.layers.Property
+import com.maptec.applied.style.Property
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -56,10 +54,9 @@ class MarkerAnimationScreenTest {
     companion object {
         private const val TAG_BTN_ADD_MARKER = "symbol_btn_add_marker"
         private const val TAG_BTN_CLEAR_ALL = "symbol_btn_clear_all"
+        private const val TAG_BTN_STOP_ALL_ANIMATIONS = "symbol_btn_stop_all_animations"
         private const val TAG_HAS_MARKERS = "symbol_layer_has_markers"
         private const val TAG_TOP_BAR = "anim_top_bar"
-        private const val TAG_MODE_ENTER = "anim_mode_enter"
-        private const val TAG_MODE_DISAPPEAR = "anim_mode_disappear"
         private const val TAG_BTN_ENTER_START = "anim_btn_enter_start"
         private const val TAG_BTN_ENTER_END = "anim_btn_enter_end"
         private const val TAG_BTN_DISAPPEAR_START = "anim_btn_disappear_start"
@@ -97,7 +94,7 @@ class MarkerAnimationScreenTest {
     @Before
     fun setUp() {
         navigateToMarkerAnimationScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
         Thread.sleep(2000)
         resetScreenState()
@@ -120,11 +117,7 @@ class MarkerAnimationScreenTest {
 
     private fun navigateToMarkerAnimationScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_overlay)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.overlay_item_marker_animation))
-            .performScrollTo()
-            .performClick()
+        composeTestRule.openAnnotationsDemo(R.string.overlay_item_marker_animation)
         composeTestRule.waitForIdle()
     }
 
@@ -164,20 +157,16 @@ class MarkerAnimationScreenTest {
     }
 
     /**
-     * 点击顶部动画栏按钮。BottomSheet 展开时会挡住 Compose 点击，改用根节点坐标点击。
+     * 点击配置面板内动画按钮；需先展开面板并滚动到可见区域。
      */
-    private fun clickTopBarButton(tag: String) {
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
-        }
-        val bounds = composeTestRule.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot
-        val x = (bounds.left + bounds.right) / 2f
-        val y = (bounds.top + bounds.bottom) / 2f
-        composeTestRule.onRoot().performTouchInput {
-            click(Offset(x, y))
-        }
+    private fun clickPanelAnimButton(tag: String) {
+        composeTestRule.expandConfigPanel()
+        composeTestRule.onNodeWithTag(tag).performScrollTo().performClick()
         composeTestRule.waitForIdle()
     }
+
+    /** @deprecated 动画控制已移入配置面板，保留别名便于逐步迁移测试。 */
+    private fun clickTopBarButton(tag: String) = clickPanelAnimButton(tag)
 
     private fun waitForNoMarkersUiState(timeoutMs: Long = 12_000L) {
         composeTestRule.waitUntil(timeoutMillis = timeoutMs) {
@@ -185,7 +174,11 @@ class MarkerAnimationScreenTest {
         }
     }
 
+    /**
+     * 点击配置面板内按钮；绘制后面板可能收起，需先展开。
+     */
     private fun clickPanelButton(tag: String) {
+        composeTestRule.expandConfigPanel()
         composeTestRule.onNodeWithTag(tag).performScrollTo().performClick()
         composeTestRule.waitForIdle()
     }
@@ -236,24 +229,27 @@ class MarkerAnimationScreenTest {
     }
 
     private fun switchToEnterMode() {
-        composeTestRule.onNodeWithTag(TAG_MODE_ENTER).performScrollTo().performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag(TAG_MODE_ENTER).assertIsSelected()
+        composeTestRule.expandConfigPanel()
     }
 
     private fun switchToDisappearMode() {
-        composeTestRule.onNodeWithTag(TAG_MODE_DISAPPEAR).performScrollTo().performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag(TAG_MODE_DISAPPEAR).assertIsSelected()
+        composeTestRule.expandConfigPanel()
     }
 
     // ==================== 页面加载 ====================
 
     @Test
-    fun testTopBar_defaultEnterMode_showsEnterButtons() {
-        composeTestRule.onNodeWithTag(TAG_BTN_ENTER_START).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(TAG_BTN_ENTER_END).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(TAG_MODE_ENTER).performScrollTo().assertIsSelected()
+    fun testTopBar_showsMarkerStatusAndQuickActions() {
+        composeTestRule.onNodeWithTag("symbol_btn_add_marker_top").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("symbol_btn_clear_all_top").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("anim_top_bar").assertIsDisplayed()
+    }
+
+    @Test
+    fun testEnterPanel_showsEnterButtons() {
+        composeTestRule.expandConfigPanel()
+        composeTestRule.onNodeWithTag("anim_btn_enter_start").performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag("anim_btn_enter_end").performScrollTo().assertIsDisplayed()
     }
 
     // ==================== Marker 添加 / 清除 ====================
@@ -306,25 +302,12 @@ class MarkerAnimationScreenTest {
         composeTestRule.onNodeWithTag(TAG_HAS_MARKERS).assertIsDisplayed()
     }
 
-    // ==================== 动画模式切换 ====================
-
     @Test
-    fun testMainAnimationMode_switchToDisappear_changesTopBarButtons() {
-        switchToDisappearMode()
-
-        composeTestRule.onNodeWithTag(TAG_BTN_DISAPPEAR_START).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(TAG_BTN_DISAPPEAR_END).assertIsDisplayed()
-        composeTestRule.onNodeWithTag(TAG_MODE_DISAPPEAR).performScrollTo().assertIsSelected()
-    }
-
-    @Test
-    fun testMainAnimationMode_disappearMode_enablesDisappearSection() {
-        switchToDisappearMode()
-
+    fun testDisappearPanel_showsDisappearControls() {
+        composeTestRule.expandConfigPanel()
+        composeTestRule.onNodeWithTag(TAG_BTN_DISAPPEAR_START).performScrollTo().assertIsDisplayed()
+        composeTestRule.onNodeWithTag(TAG_BTN_DISAPPEAR_END).performScrollTo().assertIsDisplayed()
         composeTestRule.onNodeWithTag(TAG_DROPDOWN_DISAPPEAR).performScrollTo().assertIsEnabled()
-        composeTestRule.onNodeWithTag(TAG_INPUT_DISAPPEAR_DURATION).performScrollTo().assertIsEnabled()
-        composeTestRule.onNodeWithTag(TAG_DROPDOWN_ENTER).performScrollTo().assertIsNotEnabled()
-        composeTestRule.onNodeWithTag(TAG_INPUT_ENTER_DURATION).performScrollTo().assertIsNotEnabled()
     }
 
     // ==================== 进入动画 ====================
@@ -427,6 +410,23 @@ class MarkerAnimationScreenTest {
 //    }
 
     // ==================== 点选动画 ====================
+
+    @Test
+    fun testStopAllAnimations_keepsMarkers() {
+        clickPanelButton(TAG_BTN_ADD_MARKER)
+        waitForMarkerCount(1)
+
+        selectDropdownOption(TAG_DROPDOWN_ENTER, "弹跳 bounce")
+        switchToEnterMode()
+        clickTopBarButton(TAG_BTN_ENTER_START)
+        composeTestRule.waitForIdle()
+        Thread.sleep(500)
+
+        clickPanelButton(TAG_BTN_STOP_ALL_ANIMATIONS)
+        composeTestRule.waitForIdle()
+        waitForMarkerCount(1)
+        composeTestRule.onNodeWithTag(TAG_HAS_MARKERS).assertIsDisplayed()
+    }
 
     @Test
     fun testSelectAnimation_selectBounce_mapClick_noCrash() {

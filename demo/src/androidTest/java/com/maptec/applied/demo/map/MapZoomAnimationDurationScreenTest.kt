@@ -18,8 +18,13 @@ import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
 import com.maptec.applied.demo.ext.verifyMapViewSwitchToggle
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.javabase.log.LoggerFactory
 import org.junit.After
 import org.junit.Rule
@@ -56,12 +61,7 @@ class MapZoomAnimationDurationScreenTest {
 
     private fun navigateToZoomAnimationDurationScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_gesture)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_zoom_animation_duration))
-            .performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_map_gesture, R.string.map_item_zoom_animation_duration)
         composeTestRule.waitForIdle()
     }
 
@@ -71,7 +71,7 @@ class MapZoomAnimationDurationScreenTest {
     @Test
     fun toggleZoomAnimationEnabledSwitch() {
         navigateToZoomAnimationDurationScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         composeTestRule.verifyMapViewSwitchToggle("switch_zoom_animation_enabled") { view, callback ->
             view.getMapAsync { callback(it.uiSettings.gestures.isZoomAnimationDurationEnabled) }
         }
@@ -83,7 +83,7 @@ class MapZoomAnimationDurationScreenTest {
     @Test
     fun changeZoomAnimationDurationViaSlider() {
         navigateToZoomAnimationDurationScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         val mapView = composeTestRule.getMapView()
 
         composeTestRule.onNodeWithTag("text_zoom_animation_duration").assertIsDisplayed()

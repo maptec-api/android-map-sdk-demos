@@ -12,8 +12,9 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
+import com.maptec.applied.demo.ext.clickClickableText
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -63,8 +64,7 @@ class AttentionScreenTest {
 
     private fun navigateToAttentionScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_attention)).performClick()
-        composeTestRule.waitForIdle()
+        composeTestRule.clickClickableText(R.string.screen_item_attention)
     }
 
     // ==================== 页面元素验证 ====================
@@ -145,10 +145,6 @@ class AttentionScreenTest {
             .performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_render))
-            .performClick()
-        composeTestRule.waitForIdle()
-
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
     }
 }

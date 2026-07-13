@@ -17,7 +17,8 @@ import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import org.junit.After
 import org.junit.Assert.assertNotEquals
@@ -70,7 +71,7 @@ class MapGestureThresholdScreenTest {
     @Before
     fun setUp() {
         navigateMapGestureThresholdScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
     }
 
@@ -83,13 +84,10 @@ class MapGestureThresholdScreenTest {
 
     private fun navigateMapGestureThresholdScreen() {
         composeTestRule.waitForIdle()
-        // 假设路径为：地图 -> 手势控制 -> 阻力与阈值配置 (请根据你的实际 strings.xml 进行替换)
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_gesture)).performClick()
-        composeTestRule.waitForIdle()
-        // 此处的文本请替换为实际列表项的文案或 String ID
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_gesture_threshold)).performClick()
+        composeTestRule.openInteractionDemo(
+            R.string.map_item_map_gesture,
+            R.string.map_item_gesture_threshold,
+        )
         composeTestRule.waitForIdle()
     }
 

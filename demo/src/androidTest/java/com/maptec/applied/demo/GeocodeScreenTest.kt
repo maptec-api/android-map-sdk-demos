@@ -17,7 +17,13 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.maptec.applied.demo.ext.DEMO_BACK_BUTTON_TAG
+import com.maptec.applied.demo.ext.clickClickableText
+import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openWebServicesDemo
+import com.maptec.applied.demo.ext.expandApiResponseCard
 import com.maptec.applied.demo.ext.waitForApiResponseKey
+import com.maptec.applied.demo.viewmodel.GeocodeViewModel.Mode
 import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
@@ -26,8 +32,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 /**
- * GeocodeScreen API 集成测试：通过 UI 交互触发地理编码 API 调用，
- * 利用 ApiResponseDebugCard 中的 JSON 响应进行 API 功能验证。
+ * 地理编码 Screen API 集成测试（ForwardGeocodeScreen / ReverseGeocodeScreen）。
  */
 @RunWith(AndroidJUnit4::class)
 class GeocodeScreenTest {
@@ -50,20 +55,30 @@ class GeocodeScreenTest {
     @get:Rule
     val ruleChain: TestRule = RuleChain.outerRule(permissionRule).around(composeTestRule)
 
-    private fun getString(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun getString(resId: Int): String = getTestString(resId)
 
     private fun navigateToGeocodeScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.screen_item_geocode)).performClick()
+        composeTestRule.openWebServicesDemo(R.string.catalog_forward_geocode)
         composeTestRule.waitUntil(5000) {
             composeTestRule.onAllNodesWithText(getString(R.string.geocode_submit))
                 .fetchSemanticsNodes().isNotEmpty()
         }
     }
 
+    private fun catalogResForMode(mode: Mode): Int = when (mode) {
+        Mode.FORWARD -> R.string.catalog_forward_geocode
+        Mode.REVERSE -> R.string.catalog_reverse_geocode
+    }
+
+    private fun switchToGeocodeMode(mode: Mode) {
+        composeTestRule.onNodeWithTag(DEMO_BACK_BUTTON_TAG).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.clickClickableText(catalogResForMode(mode))
+        composeTestRule.waitForIdle()
+    }
+
     private fun waitForApiResponse(timeoutMs: Long = 60_000) {
-        val apiTitle = getString(R.string.geocode_api_response_title)
         val loadingText = getString(R.string.geocode_loading)
         composeTestRule.waitUntil(timeoutMs) {
             composeTestRule.onAllNodesWithTag("api_response_card", useUnmergedTree = true)
@@ -71,14 +86,19 @@ class GeocodeScreenTest {
                 composeTestRule.onAllNodesWithTag("geocode_error_message", useUnmergedTree = true)
                     .fetchSemanticsNodes().isNotEmpty() ||
                 composeTestRule.onAllNodesWithText("status:", substring = true, useUnmergedTree = true)
-                    .fetchSemanticsNodes().isNotEmpty() ||
-                composeTestRule.onAllNodesWithText(apiTitle, substring = true, useUnmergedTree = true)
                     .fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.waitUntil(5_000) {
             composeTestRule.onAllNodesWithText(loadingText, useUnmergedTree = true)
                 .fetchSemanticsNodes().isEmpty()
         }
+        composeTestRule.expandApiResponseCard()
+    }
+
+    private fun expandGeocodeAdvanced() {
+        composeTestRule.onNodeWithText(getString(R.string.search_advanced_more)).performScrollTo()
+        composeTestRule.onNodeWithText(getString(R.string.search_advanced_more)).performClick()
+        composeTestRule.waitForIdle()
     }
 
     private fun replaceLatLngField(tag: String, value: String) {
@@ -99,13 +119,12 @@ class GeocodeScreenTest {
     @Test
     fun forwardGeocode_basic_showsApiResponse() {
         navigateToGeocodeScreen()
-        // 默认 address 已是 "Lorong"，直接点击提交
-        composeTestRule.onNodeWithText(getString(R.string.geocode_submit)).performClick()
+        clickSubmit()
         waitForApiResponse()
         composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("results")
+        composeTestRule.waitForApiResponseKey("status")
+        composeTestRule.waitForApiResponseKey("OK")
+        composeTestRule.waitForApiResponseKey("results")
     }
 
     @Test
@@ -115,6 +134,7 @@ class GeocodeScreenTest {
             .performTextClearance()
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_address), substring = true)
             .performTextInput("Singapore")
+        expandGeocodeAdvanced()
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_language), substring = true)
             .performTextClearance()
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_language), substring = true)
@@ -124,12 +144,12 @@ class GeocodeScreenTest {
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_region), substring = true)
             .performTextInput("SG")
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.geocode_submit)).performClick()
+        clickSubmit()
         waitForApiResponse()
         composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("results")
+        composeTestRule.waitForApiResponseKey("status")
+        composeTestRule.waitForApiResponseKey("OK")
+        composeTestRule.waitForApiResponseKey("results")
     }
 
     @Test
@@ -145,9 +165,9 @@ class GeocodeScreenTest {
         clickSubmit()
         waitForApiResponse()
         composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("results")
+        composeTestRule.waitForApiResponseKey("status")
+        composeTestRule.waitForApiResponseKey("OK")
+        composeTestRule.waitForApiResponseKey("results")
     }
 
     // ==================== 2. 反向地理编码 ====================
@@ -155,22 +175,19 @@ class GeocodeScreenTest {
     @Test
     fun reverseGeocode_basic_showsApiResponse() {
         navigateToGeocodeScreen()
-        composeTestRule.onNodeWithText("反向地理编码").performClick()
-        composeTestRule.waitForIdle()
-        // 默认 location 已是 "1.46878,103.80373"，直接点击提交
-        composeTestRule.onNodeWithText(getString(R.string.geocode_submit)).performClick()
+        switchToGeocodeMode(Mode.REVERSE)
+        clickSubmit()
         waitForApiResponse()
         composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("results")
+        composeTestRule.waitForApiResponseKey("status")
+        composeTestRule.waitForApiResponseKey("OK")
+        composeTestRule.waitForApiResponseKey("results")
     }
 
     @Test
     fun reverseGeocode_withAllParams_showsApiResponse() {
         navigateToGeocodeScreen()
-        composeTestRule.onNodeWithText("反向地理编码").performClick()
-        composeTestRule.waitForIdle()
+        switchToGeocodeMode(Mode.REVERSE)
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_location), substring = true)
             .performTextClearance()
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_location), substring = true)
@@ -179,17 +196,18 @@ class GeocodeScreenTest {
             .performTextClearance()
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_result_type), substring = true)
             .performTextInput("street_address")
+        expandGeocodeAdvanced()
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_language), substring = true)
             .performTextClearance()
         composeTestRule.onNodeWithText(getString(R.string.geocode_label_language), substring = true)
             .performTextInput("en")
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.geocode_submit)).performClick()
+        clickSubmit()
         waitForApiResponse()
         composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("results")
+        composeTestRule.waitForApiResponseKey("status")
+        composeTestRule.waitForApiResponseKey("OK")
+        composeTestRule.waitForApiResponseKey("results")
     }
 
     // ==================== 3. Tab 切换 ====================
@@ -197,10 +215,8 @@ class GeocodeScreenTest {
     @Test
     fun tabSwitching_noCrash() {
         navigateToGeocodeScreen()
-        composeTestRule.onNodeWithText("反向地理编码").performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText("正向地理编码").performClick()
-        composeTestRule.waitForIdle()
+        switchToGeocodeMode(Mode.REVERSE)
+        switchToGeocodeMode(Mode.FORWARD)
         assertFalse(composeTestRule.activity.isFinishing)
     }
 
@@ -213,6 +229,6 @@ class GeocodeScreenTest {
             composeTestRule.activity.onBackPressedDispatcher?.onBackPressed()
         }
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.screen_item_geocode)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(getString(R.string.catalog_forward_geocode)).assertIsDisplayed()
     }
 }

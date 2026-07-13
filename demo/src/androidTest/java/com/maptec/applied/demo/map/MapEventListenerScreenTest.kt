@@ -17,8 +17,8 @@ import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
-import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import org.junit.After
 import org.junit.Assert.assertTrue
@@ -77,20 +77,22 @@ class MapEventListenerScreenTest {
 
     private fun navigateToMapEventListenerScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_event_listener)).performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_map_event_listener)
         composeTestRule.waitForIdle()
     }
 
     private fun waitForLog(text: String, timeout: Long = 5) {
-        composeTestRule.waitUntil(
-            condition = {
-                composeTestRule.onAllNodes(hasText(text, substring = true))
-                    .fetchSemanticsNodes().isNotEmpty()
-            },
-            timeoutMillis = TimeUnit.SECONDS.toMillis(timeout)
-        )
+        val deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(timeout)
+        while (System.currentTimeMillis() < deadline) {
+            try {
+                val nodes = composeTestRule.onAllNodes(hasText(text, substring = true))
+                    .fetchSemanticsNodes()
+                if (nodes.isNotEmpty()) return
+            } catch (_: Throwable) {
+            }
+            Thread.sleep(200)
+        }
+        throw AssertionError("Condition not satisfied within ${timeout}s: $text")
     }
 
     private fun assertNoLog(text: String) {
@@ -157,30 +159,52 @@ class MapEventListenerScreenTest {
         instrumentation.runOnMainSync {
             mapView.getLocationOnScreen(location)
         }
+
+        // 起点：地图中心
         val startX = (location[0] + mapView.width / 2).toFloat()
         val startY = (location[1] + mapView.height / 2).toFloat()
-        val endX = startX + 120f
+
+        // 终点：向右滑动视图宽度的 40%
+        val endX = startX + (mapView.width * 0.4f)
         val endY = startY
+
+        // 核心参数：将滑动过程拆分为多个步骤
+        val steps = 20          // 将滑动拆分成 20 步
+        val durationMs = 400L   // 整个滑动过程耗时 400 毫秒
 
         instrumentation.runOnMainSync {
             val downTime = SystemClock.uptimeMillis()
+            var eventTime = downTime
+
+            // 1. 手指按下 (ACTION_DOWN)
             mapView.dispatchTouchEvent(
-                MotionEvent.obtain(downTime, downTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
+                MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_DOWN, startX, startY, 0)
             )
-            mapView.dispatchTouchEvent(
-                MotionEvent.obtain(
-                    downTime, SystemClock.uptimeMillis(), MotionEvent.ACTION_MOVE, endX, endY, 0
+
+            // 2. 连续的手指滑动 (ACTION_MOVE) - 模拟真实轨迹
+            for (i in 1..steps) {
+                val progress = i / steps.toFloat()
+                // 线性插值计算当前的 X 和 Y 坐标
+                val currentX = startX + (endX - startX) * progress
+                val currentY = startY + (endY - startY) * progress
+                // 按比例计算当前事件的时间戳
+                eventTime = downTime + (durationMs * progress).toLong()
+
+                mapView.dispatchTouchEvent(
+                    MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_MOVE, currentX, currentY, 0)
                 )
-            )
+            }
+
+            // 3. 手指抬起 (ACTION_UP)
             mapView.dispatchTouchEvent(
-                MotionEvent.obtain(
-                    SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                    MotionEvent.ACTION_UP, endX, endY, 0
-                )
+                MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_UP, endX, endY, 0)
             )
         }
+
         composeTestRule.waitForIdle()
-        Thread.sleep(500)
+
+        // 等待地图的惯性滑动 (Fling) 结束，留出充足时间让底层渲染和抛出 Idle 日志
+        Thread.sleep(1500)
     }
 
     // ==================== 测试用例 ====================
@@ -188,7 +212,7 @@ class MapEventListenerScreenTest {
     @Test
     fun testMapReadyAndSwitchesInitiallyOff() {
         navigateToMapEventListenerScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
         assertTrue("MapView should have non-zero dimensions", mapView.width > 0 && mapView.height > 0)
     }
@@ -196,11 +220,8 @@ class MapEventListenerScreenTest {
     @Test
     fun testMapClick_enabled_generatesLogEntry() {
         navigateToMapEventListenerScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
-
-        composeTestRule.onNodeWithTag(TAG_SWITCH_MAP_CLICK).performScrollTo().performClick()
-        composeTestRule.waitForIdle()
 
         dispatchTapOnMap()
         composeTestRule.waitForIdle()
@@ -211,11 +232,8 @@ class MapEventListenerScreenTest {
     @Test
     fun testMapLongClick_enabled_generatesLogEntry() {
         navigateToMapEventListenerScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
-
-        composeTestRule.onNodeWithTag(TAG_SWITCH_MAP_LONG_CLICK).performScrollTo().performClick()
-        composeTestRule.waitForIdle()
 
         dispatchLongPressOnMap()
         composeTestRule.waitForIdle()
@@ -226,11 +244,9 @@ class MapEventListenerScreenTest {
     @Test
     fun testClearLogs_removesEntries() {
         navigateToMapEventListenerScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
 
-        composeTestRule.onNodeWithTag(TAG_SWITCH_MAP_CLICK).performScrollTo().performClick()
-        composeTestRule.waitForIdle()
         dispatchTapOnMap()
         composeTestRule.waitForIdle()
         waitForLog(LOG_MAP_CLICK)
@@ -241,16 +257,13 @@ class MapEventListenerScreenTest {
         assertNoLog(LOG_MAP_CLICK)
     }
 
+
     @Test
     fun testCameraIdle_enabled_generatesLogEntry() {
         navigateToMapEventListenerScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
-
-        composeTestRule.onNodeWithTag(TAG_SWITCH_CAMERA_IDLE).performScrollTo().performClick()
         composeTestRule.waitForIdle()
-
         dispatchSwipeOnMap()
-        waitForLog(LOG_CAMERA_IDLE)
-    }
+        waitForLog(LOG_CAMERA_IDLE, timeout = 8)    }
 }

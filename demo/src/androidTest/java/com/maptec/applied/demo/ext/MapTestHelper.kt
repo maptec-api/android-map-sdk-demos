@@ -10,13 +10,17 @@ import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
+import com.maptec.applied.demo.ui.locale.readDemoUiLanguage
+import com.maptec.applied.demo.ui.locale.withUiLocale
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.maps.MapView
 import org.junit.Assert.assertEquals
@@ -37,12 +41,15 @@ fun ComposeContentTestRule.getMapView(): MapView {
 }
 
 
-fun getTestString(resId: Int, vararg formatArgs: Any?): String =
-    if (formatArgs.isEmpty()) {
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+fun getTestString(resId: Int, vararg formatArgs: Any?): String {
+    val context = InstrumentationRegistry.getInstrumentation().targetContext
+    val localizedContext = context.withUiLocale(context.readDemoUiLanguage())
+    return if (formatArgs.isEmpty()) {
+        localizedContext.getString(resId)
     } else {
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId, *formatArgs)
+        localizedContext.getString(resId, *formatArgs)
     }
+}
 
 
 /**
@@ -56,6 +63,7 @@ fun <R : TestRule, A : ComponentActivity> AndroidComposeTestRule<R, A>.verifyMap
 
     // 校验地图渲染完成
     this.waitForMapRendered()
+    this.expandConfigPanel()
 
     // 1. 验证初始状态（UI Switch 应为开启，地图内部配置应为 true）
     this.onNodeWithTag(switchTag).assertIsDisplayed().assertIsOn()
@@ -97,17 +105,35 @@ private fun assertMapViewState(
 fun ComposeContentTestRule.waitForMapRendered(
     timeoutMillis: Long = TimeUnit.SECONDS.toMillis(30), tag: String = "mapRendered"
 ) {
-    this.waitUntil(
-        condition = {
-            this.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
-        },
-        timeoutMillis = timeoutMillis
-    )
+    pollUntil(timeoutMillis) {
+        onAllNodesWithTag(tag).existsSafely()
+    }
 }
 
- fun ComposeContentTestRule.waitForApiResponseKey(keyword: String, timeoutMs: Long = 15000) {
-     this.waitUntil(timeoutMs) {
-         this.onAllNodesWithText(keyword, substring = true, useUnmergedTree = true)
+/** Expands [WebServiceApiResponseCard] so JSON keys appear in the semantics tree. */
+fun ComposeContentTestRule.expandApiResponseCard() {
+    if (onAllNodesWithTag("api_response_card", useUnmergedTree = true).fetchSemanticsNodes().isEmpty()) {
+        return
+    }
+    val expandLabels = listOf(
+        getTestString(R.string.geocode_expand),
+        getTestString(R.string.search_action_expand),
+    )
+    for (label in expandLabels) {
+        if (onAllNodesWithText(label, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()) {
+            val expandNode = onAllNodesWithText(label, useUnmergedTree = true).onFirst()
+            runCatching { expandNode.performScrollTo() }
+            expandNode.performClick()
+            waitForIdle()
+            return
+        }
+    }
+}
+
+fun ComposeContentTestRule.waitForApiResponseKey(keyword: String, timeoutMs: Long = 15000) {
+    expandApiResponseCard()
+    this.waitUntil(timeoutMs) {
+        this.onAllNodesWithText(keyword, substring = true, useUnmergedTree = true)
             .fetchSemanticsNodes().isNotEmpty()
     }
 }

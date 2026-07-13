@@ -18,7 +18,12 @@ import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -69,7 +74,7 @@ class CompassScreenTest {
     @Before
     fun setUp() {
         navigateToCompassScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
     }
 
@@ -82,9 +87,7 @@ class CompassScreenTest {
 
     private fun navigateToCompassScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_compass)).performClick()
+        composeTestRule.openUiControlsDemo(R.string.map_item_compass)
         composeTestRule.waitForIdle()
     }
 
@@ -239,7 +242,7 @@ class CompassScreenTest {
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText(getTestString(R.string.map_item_compass)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_location)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(getTestString(R.string.map_item_zoom)).assertIsDisplayed()
     }
 
     @Test
@@ -253,6 +256,6 @@ class CompassScreenTest {
         }
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(getTestString(R.string.catalog_main_interaction)).assertIsDisplayed()
     }
 }

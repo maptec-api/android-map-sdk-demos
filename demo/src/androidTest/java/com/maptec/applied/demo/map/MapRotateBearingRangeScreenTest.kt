@@ -17,7 +17,12 @@ import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import org.junit.After
 import org.junit.Assert.assertNotEquals
@@ -67,7 +72,7 @@ class MapRotateBearingRangeScreenTest {
     @Before
     fun setUp() {
         navigateToScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
     }
 
@@ -80,11 +85,7 @@ class MapRotateBearingRangeScreenTest {
 
     private fun navigateToScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_gesture)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_rotate_bearing_range)).performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_map_gesture, R.string.map_item_rotate_bearing_range)
         composeTestRule.waitForIdle()
     }
 

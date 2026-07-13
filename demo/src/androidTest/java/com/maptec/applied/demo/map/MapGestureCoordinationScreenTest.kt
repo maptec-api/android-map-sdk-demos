@@ -2,27 +2,22 @@
 
 import android.Manifest
 import android.os.Build
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipe
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
+import com.maptec.applied.demo.ext.expandConfigPanel
 import com.maptec.applied.demo.ext.getMapView
-import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.GestureSettings
 import com.maptec.applied.maps.MapGestureType
 import com.maptec.applied.maps.MapView
@@ -75,7 +70,7 @@ class MapGestureCoordinationScreenTest {
     @Before
     fun setUp() {
         navigateMapGestureCoordinationScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
     }
 
@@ -86,11 +81,7 @@ class MapGestureCoordinationScreenTest {
 
     private fun navigateMapGestureCoordinationScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_gesture)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_gesture_coordination)).performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_map_gesture, R.string.map_item_gesture_coordination)
         composeTestRule.waitForIdle()
     }
 
@@ -111,34 +102,53 @@ class MapGestureCoordinationScreenTest {
     }
 
     private fun toggleGestureCheckbox(type: MapGestureType) {
+        composeTestRule.expandConfigPanel()
         composeTestRule.onNodeWithTag(tagCheckbox(type)).performScrollTo().performClick()
         composeTestRule.waitForIdle()
     }
 
+    private fun waitUntilSimultaneousAllowed(expected: Boolean, timeoutMillis: Long = 5_000) {
+        composeTestRule.waitUntil(timeoutMillis) {
+            var actual = !expected
+            withGestureSettings { actual = it.isSimultaneousGesturesAllowed }
+            actual == expected
+        }
+    }
+
+    private fun waitUntilSimultaneousSwitch(expectedOn: Boolean, timeoutMillis: Long = 5_000) {
+        composeTestRule.waitUntil(timeoutMillis) {
+            try {
+                if (expectedOn) {
+                    composeTestRule.onNodeWithTag(TAG_SWITCH_SIMULTANEOUS).assertIsOn()
+                } else {
+                    composeTestRule.onNodeWithTag(TAG_SWITCH_SIMULTANEOUS).assertIsOff()
+                }
+                true
+            } catch (_: AssertionError) {
+                false
+            }
+        }
+    }
+
+    private fun toggleSimultaneousSwitch(expectOnAfter: Boolean) {
+        composeTestRule.expandConfigPanel()
+        composeTestRule.onNodeWithTag(TAG_SWITCH_SIMULTANEOUS).performScrollTo().performClick()
+        composeTestRule.waitForIdle()
+        waitUntilSimultaneousSwitch(expectOnAfter)
+        waitUntilSimultaneousAllowed(expectOnAfter)
+    }
+
     private fun clickConfirmButton(reExpand: Boolean = false) {
+        composeTestRule.expandConfigPanel()
         composeTestRule.onNodeWithTag(TAG_BTN_CONFIRM).performScrollTo().performClick()
         composeTestRule.waitForIdle()
-
         Thread.sleep(300)
         composeTestRule.waitForIdle()
 
         if (reExpand) {
-            composeTestRule.onRoot().performTouchInput {
-                swipe(
-                    start = Offset(centerX, bottom - 10f),
-                    end = Offset(centerX, top + 100f),
-                    durationMillis = 300
-                )
-            }
-            composeTestRule.waitForIdle()
-            Thread.sleep(300)
+            composeTestRule.expandConfigPanel()
             composeTestRule.waitForIdle()
         }
-    }
-
-    private fun toggleSimultaneousSwitch() {
-        composeTestRule.onNodeWithTag(TAG_SWITCH_SIMULTANEOUS).performScrollTo().performClick()
-        composeTestRule.waitForIdle()
     }
 
     @Test
@@ -151,7 +161,7 @@ class MapGestureCoordinationScreenTest {
 
     @Test
     fun testSimultaneousSwitch_ToggleOff() {
-        toggleSimultaneousSwitch()
+        toggleSimultaneousSwitch(expectOnAfter = false)
         composeTestRule.onNodeWithTag(TAG_SWITCH_SIMULTANEOUS).assertIsOff()
 
         withGestureSettings { gs ->
@@ -161,7 +171,7 @@ class MapGestureCoordinationScreenTest {
 
     @Test
     fun testSimultaneousSwitch_CheckboxesAndButtonDisabledWhenOff() {
-        toggleSimultaneousSwitch()
+        toggleSimultaneousSwitch(expectOnAfter = false)
 
         composeTestRule.onNodeWithTag(tagCheckbox(MapGestureType.SCALE)).assertIsNotEnabled()
         composeTestRule.onNodeWithTag(tagCheckbox(MapGestureType.ROTATE)).assertIsNotEnabled()
@@ -211,7 +221,7 @@ class MapGestureCoordinationScreenTest {
         toggleGestureCheckbox(MapGestureType.ROTATE)
         clickConfirmButton(reExpand = true)
 
-        toggleSimultaneousSwitch()
+        toggleSimultaneousSwitch(expectOnAfter = false)
         composeTestRule.onNodeWithTag(TAG_SWITCH_SIMULTANEOUS).assertIsOff()
 
         withGestureSettings { gs ->
@@ -219,7 +229,7 @@ class MapGestureCoordinationScreenTest {
             assertEquals("关闭 simultaneous 不应清除底层的互斥集合数据", 1, gs.mutuallyExclusiveGestures.size)
         }
 
-        toggleSimultaneousSwitch()
+        toggleSimultaneousSwitch(expectOnAfter = true)
         composeTestRule.onNodeWithTag(TAG_SWITCH_SIMULTANEOUS).assertIsOn()
 
         withGestureSettings { gs ->
@@ -259,7 +269,7 @@ class MapGestureCoordinationScreenTest {
         toggleGestureCheckbox(MapGestureType.ROTATE)
         clickConfirmButton(reExpand = true)
 
-        toggleSimultaneousSwitch()
+        toggleSimultaneousSwitch(expectOnAfter = false)
 
         withGestureSettings { gs ->
             assertFalse(gs.isSimultaneousGesturesAllowed)

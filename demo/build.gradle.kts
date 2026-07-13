@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.kotlin.compose)
 }
-
+val useSource = (project.findProperty("useSource") as? String) != "false"
+val useLog = (project.findProperty("useLog") as? String) != "false"
 android {
     namespace = "com.maptec.applied.demo"
     compileSdk = 36
@@ -22,6 +23,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testProguardFiles("proguard-test-rules.pro")
+
+        buildConfigField("boolean", "USE_LOG", "${useLog}")
     }
 
     signingConfigs {
@@ -63,14 +66,6 @@ android {
 
     }
 
-    packaging {
-        jniLibs {
-            /**地图SDK中的plog为c++_static编译生成的*/
-            pickFirsts.add("lib/arm64-v8a/libplog.so")
-            pickFirsts.add("lib/arm64-v8a/libmlog.so")
-        }
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -80,6 +75,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     flavorDimensions += "renderer"
@@ -95,7 +91,7 @@ android {
     }
 }
 
-val useSource = (project.findProperty("useSource") as? String) != "false"
+
 
 dependencies {
     if (useSource) {

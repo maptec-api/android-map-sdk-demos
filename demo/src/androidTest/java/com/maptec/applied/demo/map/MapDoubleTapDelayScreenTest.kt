@@ -18,8 +18,13 @@ import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
 import com.maptec.applied.demo.ext.verifyMapViewSwitchToggle
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.javabase.log.LoggerFactory
 import org.junit.After
 import org.junit.Rule
@@ -58,11 +63,7 @@ class MapDoubleTapDelayScreenTest {
 
     private fun navigateToDoubleTapDelayScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_gesture)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_double_tap_delay)).performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_map_gesture, R.string.map_item_double_tap_delay)
         composeTestRule.waitForIdle()
     }
 
@@ -75,7 +76,7 @@ class MapDoubleTapDelayScreenTest {
     @Test
     fun toggleCustomDoubleTapSwitch() {
         navigateToDoubleTapDelayScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         composeTestRule.verifyMapViewSwitchToggle("switch_custom_double_tap") { view, callback ->
             view.getMapAsync { callback(it.uiSettings.gestures.isCustomDoubleTapDetectionEnabled) }
         }
@@ -87,7 +88,7 @@ class MapDoubleTapDelayScreenTest {
     @Test
     fun changeDoubleTapDelayViaSlider() {
         navigateToDoubleTapDelayScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         val mapView = composeTestRule.getMapView()
 
         composeTestRule.onNodeWithTag("text_double_tap_delay").assertIsDisplayed()

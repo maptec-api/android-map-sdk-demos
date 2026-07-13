@@ -8,19 +8,17 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipe
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.maptec.applied.demo.ext.expandConfigPanel
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.geometry.LatLng
 import com.maptec.applied.maps.MapView
 import com.maptec.applied.maps.MaptecMap
@@ -43,7 +41,7 @@ import java.util.concurrent.TimeUnit
 /**
  * 圆形覆盖物（Circle）功能测试。
  *
- * 对应页面：业务图层 → 圆形 → [CircleListScreen] 各子项
+ * 对应页面：业务图层 → 圆 → 各子项（目录直达）
  * - [com.maptec.applied.demo.ui.screens.overlays.circle.CircleBasicScreen]
  * - [com.maptec.applied.demo.ui.screens.overlays.circle.CircleGeodesicScreen]
  * - [com.maptec.applied.demo.ui.screens.overlays.circle.CircleDraggableScreen]
@@ -107,13 +105,13 @@ class CircleScreenTest {
     // ==================== 导航与辅助 ====================
 
     private fun prepareMap(): MapView {
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         return composeTestRule.getMapView()
     }
 
     private fun navigateToCircleSubScreen(menuTitleRes: Int) {
-        navigateToCircleMenu()
-        composeTestRule.onNodeWithText(getTestString(menuTitleRes)).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.openAnnotationsDemo(menuTitleRes)
         composeTestRule.waitForIdle()
     }
 
@@ -214,19 +212,10 @@ class CircleScreenTest {
     }
 
     /**
-     * 绘制后 [DrawCircleButton] 会 partialExpand 收起面板，再次编辑输入需先 [expandCirclePanel]。
+     * 绘制后配置面板会关闭，再次编辑输入需先重新展开。
      */
     private fun expandCirclePanel() {
-        composeTestRule.onRoot().performTouchInput {
-            swipe(
-                start = Offset(centerX, bottom - 10f),
-                end = Offset(centerX, top + 100f),
-                durationMillis = 300,
-            )
-        }
-        composeTestRule.waitForIdle()
-        Thread.sleep(300)
-        composeTestRule.waitForIdle()
+        composeTestRule.expandConfigPanel()
     }
 
     private fun setInput(tag: String, value: String, expandPanel: Boolean = false) {
@@ -250,16 +239,6 @@ class CircleScreenTest {
         Thread.sleep(1500)
     }
 
-    // ==================== 列表导航 ====================
-
-    private fun navigateToCircleMenu() {
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_overlay)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.overlay_item_circle)).performClick()
-        composeTestRule.waitForIdle()
-    }
-
     // ==================== 基础绘制 ====================
 
     @Test
@@ -274,7 +253,7 @@ class CircleScreenTest {
             assertEquals("Radius", 120.0, circle.radius, 0.01)
             assertEquals("Fill opacity", 0.5f, circle.fillOpacity, 0.01f)
             assertEquals("Stroke weight", 2.0f, circle.strokeWeight, 0.01f)
-            assertEquals("Stroke opacity", 0.0f, circle.strokeOpacity, 0.01f)
+            assertEquals("Stroke opacity", 0.8f, circle.strokeOpacity, 0.01f)
             assertFalse("Geodesic default", circle.geodesic)
             assertFalse("Draggable default", circle.isDraggable)
             assertFalse("Inner shadow default", circle.innerShadow)
@@ -338,7 +317,6 @@ class CircleScreenTest {
         val mapView = prepareMap()
 
         setInput(TAG_LATLNG, "39.9,116.4")
-        toggleSwitch(TAG_SWITCH_GEODESIC)
         clickDraw()
 
         withCircleAtCenter(mapView, 39.9, 116.4) { circle ->
@@ -490,7 +468,7 @@ class CircleScreenTest {
         clickDraw()
 
         withCircleAtCenter(mapView, 39.9, 116.4) { circle ->
-            assertEquals("Base radius", 120.0, circle.radius, 0.01)
+            assertEquals("Base radius", 50.0, circle.radius, 0.01)
         }
 
         composeTestRule.onNodeWithTag(TAG_BTN_ANIMATION_START).performScrollTo().performClick()

@@ -14,9 +14,15 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
+import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
 import com.maptec.applied.demo.ext.getMapView
-import com.maptec.applied.demo.ext.waitForMapRendered
-import com.maptec.applied.demo.ui.screens.map.MapCameraLimits
+import com.maptec.applied.demo.ext.waitForMapDemoReady
+import com.maptec.applied.demo.ui.screens.maps.MapCameraLimits
 import com.maptec.applied.maps.MapView
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -74,14 +80,11 @@ class MapControlScreenTest {
         Thread.sleep(1000)
     }
 
-    private fun getString(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun getString(resId: Int): String = getTestString(resId)
 
     private fun navigateToMapControlScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.map_item_map_control)).performClick()
+        composeTestRule.openMapsDemo(R.string.map_item_map_control)
         composeTestRule.waitForIdle()
     }
 
@@ -121,7 +124,7 @@ class MapControlScreenTest {
     @Test
     fun testAnimateCamera() {
         navigateToMapControlScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
 
         val mapView = composeTestRule.getMapView()
 
@@ -149,7 +152,7 @@ class MapControlScreenTest {
     @Test
     fun testMinZoom() {
         navigateToMapControlScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         val mapView = composeTestRule.getMapView()
 
         // 设置最小比例尺为 10
@@ -174,7 +177,7 @@ class MapControlScreenTest {
     @Test
     fun testMaxZoom() {
         navigateToMapControlScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         val mapView = composeTestRule.getMapView()
 
         // 设置最大比例尺为 15
@@ -199,7 +202,7 @@ class MapControlScreenTest {
     @Test
     fun testMaxTilt() {
         navigateToMapControlScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         val mapView = composeTestRule.getMapView()
 
         // 设置最大倾斜角为 45
@@ -224,7 +227,7 @@ class MapControlScreenTest {
     @Test
     fun testMinTilt() {
         navigateToMapControlScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         val mapView = composeTestRule.getMapView()
 
         // 设置最小倾斜角为 20

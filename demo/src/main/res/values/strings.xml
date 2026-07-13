@@ -1,15 +1,33 @@
 <resources>
-    <string name="app_name">地图Demo</string>
-    <string name="app_title">地图sdk demo</string>
+    <string name="app_name">地图示例</string>
+    <string name="app_title">地图示例</string>
     <string name="permission_required_message">需要网络权限才能显示地图</string>
 
-    <!--     MainActivity  -->
+    <!--     MainActivity / CatalogRoutes  -->
     <string name="screen_item_attention">鉴权配置</string>
     <string name="screen_item_map">基础地图能力</string>
     <string name="screen_item_overlay">业务图层</string>
     <string name="screen_item_unified_search">搜索服务</string>
     <string name="screen_item_geocode">地理编码</string>
     <string name="screen_item_route">路线规划</string>
+    <string name="catalog_main_maps">地图</string>
+    <string name="catalog_main_annotations">覆盖物</string>
+    <string name="catalog_main_interaction">地图交互</string>
+    <string name="catalog_main_web_services">Web服务</string>
+    <string name="catalog_ui_controls">地图控件</string>
+    <string name="catalog_user_location">用户定位</string>
+    <string name="catalog_section_marker">标记</string>
+    <string name="catalog_section_info_window">信息窗口</string>
+    <string name="catalog_section_polyline">折线</string>
+    <string name="catalog_section_polygon">多边形</string>
+    <string name="catalog_section_circle">圆</string>
+    <string name="catalog_section_geofence">地理围栏</string>
+    <string name="catalog_text_search">文本搜索</string>
+    <string name="catalog_nearby_search">附近搜索</string>
+    <string name="catalog_suggest">输入提示</string>
+    <string name="catalog_places">地点详情</string>
+    <string name="catalog_forward_geocode">正向地理编码</string>
+    <string name="catalog_reverse_geocode">反向地理编码</string>
 
     <!--    RouteScreen    -->
     <string name="route_config_title">路线规划配置</string>
@@ -41,6 +59,13 @@
     <string name="route_geojson_format_error">避开区域 GeoJSON 格式错误</string>
     <string name="route_waypoint_placeholder">[(lat,lng),...]</string>
     <string name="route_origin_dest_format_error">起终点坐标格式错误</string>
+    <string name="route_custom_area_polygon_label">Geojson Polygon</string>
+    <string name="route_waypoint_lat">纬度</string>
+    <string name="route_waypoint_lng">经度</string>
+    <string name="route_waypoint_add_desc">添加途经点</string>
+    <string name="route_waypoints_count_format">已添加 %d 个途经点</string>
+    <string name="route_waypoints_clear">清空</string>
+    <string name="route_waypoint_remove_desc">删除</string>
 
     <!--    AttentionScreen  -->
     <string name="attention_api_key_label">API Key</string>
@@ -78,15 +103,77 @@
     <string name="attention_sdk_name_sha1_route">SHA1(路径规划)</string>
 
     <!--    OverlayItemScreen   -->
-    <string name="overlay_item_marker">Marker</string>
-    <string name="overlay_item_marker_animation">Marker动画</string>
-    <string name="overlay_item_line">线</string>
+    <string name="overlay_item_marker">基础标记</string>
+    <string name="overlay_item_marker_style">标记样式</string>
+    <string name="overlay_item_marker_url">网络图片标记</string>
+    <string name="overlay_item_marker_sdf">SDF 彩色标记</string>
+    <string name="overlay_item_marker_animation">标记动画</string>
+    <string name="map_item_markerview">基础信息窗口</string>
+    <string name="overlay_item_info_window_style">信息窗口样式</string>
+    <string name="overlay_item_info_window_rich">富文本信息窗口</string>
+    <string name="overlay_item_line">基础折线</string>
+    <string name="overlay_item_line_glow">发光折线</string>
+    <string name="overlay_item_line_arrows">方向箭头折线</string>
+    <string name="overlay_item_line_caps">线帽折线</string>
     <string name="overlay_item_polygon">面</string>
-    <string name="overlay_item_polygon_menu">多边形</string>
+    <string name="overlay_item_polygon_menu">基础多边形</string>
+    <string name="overlay_item_polygon_pattern">图案填充多边形</string>
+    <string name="overlay_item_polygon_translate">平移多边形</string>
+    <string name="overlay_item_polygon_interaction">可交互多边形</string>
     <string name="overlay_item_polygon_full_example">多边形完整示例</string>
-    <string name="overlay_item_circle">圆</string>
-    <string name="map_item_markerview">信息窗口</string>
-    <string name="overlay_item_geofence">地理围栏</string>
+    <string name="overlay_item_geofence_point">圆形地理围栏</string>
+    <string name="overlay_item_geofence_polygon">多边形地理围栏</string>
+
+    <!--    MarkerLayerScreen    -->
+    <string name="marker_common_params">公共参数</string>
+    <string name="marker_position">位置坐标</string>
+    <string name="marker_icon_opacity">图标透明度</string>
+    <string name="marker_icon_anchor">图标锚点</string>
+    <string name="marker_scale_with_zoom">随缩放变化</string>
+    <string name="marker_icon_size_max_scale">图标大小（最大缩放）</string>
+    <string name="marker_min_scale">最小缩放</string>
+    <string name="marker_min_scale_zoom">最小缩放级别</string>
+    <string name="marker_max_scale_zoom">最大缩放级别</string>
+    <string name="marker_add_by_icon_url_title">按图标地址添加 Marker</string>
+    <string name="marker_icon_url">图标地址</string>
+    <string name="marker_image_url_hint">图片 URL</string>
+    <string name="marker_icon_url_id">图标地址 ID</string>
+    <string name="marker_icon_style_name_hint">Style 中注册的图标名</string>
+    <string name="marker_add_by_url">按地址添加</string>
+    <string name="marker_add_by_icon_type_title">按图标类型添加 Marker</string>
+    <string name="marker_icon_type">图标类型</string>
+    <string name="marker_add_by_type">按类型添加</string>
+    <string name="marker_add_sdf_title">添加 SDF 着色 Marker</string>
+    <string name="marker_icon_color">图标颜色</string>
+    <string name="marker_icon_id_hint">图标 ID：marker-icon</string>
+    <string name="marker_add_sdf">添加 SDF</string>
+    <string name="marker_clear_all">清除所有图标</string>
+    <string name="marker_anchor_bottom">底部</string>
+    <string name="marker_anchor_center">中心</string>
+    <string name="marker_anchor_top">顶部</string>
+    <string name="marker_anchor_left">左侧</string>
+    <string name="marker_anchor_right">右侧</string>
+    <string name="marker_anchor_top_left">左上</string>
+    <string name="marker_anchor_top_right">右上</string>
+    <string name="marker_anchor_bottom_left">左下</string>
+    <string name="marker_anchor_bottom_right">右下</string>
+    <string name="marker_color_format_error">格式错误，示例：#3A5EFB</string>
+    <string name="marker_toast_invalid_position">请输入有效位置 (lat,lng)</string>
+    <string name="marker_toast_enter_icon_url">请输入图标地址</string>
+    <string name="marker_toast_load_icon_failed">无法从该 URL 加载图片，请检查图标地址</string>
+    <string name="marker_toast_icon_not_registered">图标未注册：%1$s</string>
+    <string name="marker_toast_sdf_icon_not_registered">SDF 图标未注册</string>
+    <string name="marker_toast_map_not_ready">地图未就绪</string>
+    <string name="marker_toast_added">已添加 Marker：%1$s</string>
+    <string name="marker_toast_unselected">已取消选中 Marker：%1$s</string>
+    <string name="marker_toast_selected">已选中 Marker：%1$s</string>
+    <string name="marker_toast_drag_start">开始拖动 Marker：%1$s</string>
+    <string name="marker_toast_drag_finished">完成拖动 Marker：%1$s (%2$.4f, %3$.4f)</string>
+    <string name="latlng_error_required">请输入 lat,lng</string>
+    <string name="latlng_error_format">格式错误，示例：1.45,103.80</string>
+    <string name="latlng_error_lat_range">纬度应在 -90～90</string>
+    <string name="latlng_error_lng_range">经度应在 -180～180</string>
+
     <string name="overlay_item_pick">Overlay拾取</string>
     <string name="overlay_pick_hint">Ex / listener 与渲染 z-order 一致（自上而下）。后 add 的 layer group 在上层；本页先 Marker 后 Line。同组多 overlay 可用 engine.setOverlayZOrder。</string>
     <string name="overlay_pick_at_marker">Marker 位置拾取</string>
@@ -109,16 +196,25 @@
     <string name="geofence_clear_all">清除所有覆盖物</string>
     <string name="geofence_clear_marker">清除 Marker</string>
     <string name="geofence_status_default">默认已加载多边形围栏，点击地图任意位置投放 Marker</string>
+    <string name="geofence_status_point_default">默认已加载点围栏，点击地图任意位置投放 Marker</string>
+    <string name="geofence_toast_point_already_loaded">Point 围栏已加载</string>
+    <string name="geofence_toast_polygon_already_loaded">Polygon 围栏已加载</string>
+    <string name="geofence_status_point_loaded">已加载 Point 围栏「%1$s」</string>
+    <string name="geofence_status_polygon_loaded">已加载 Polygon 围栏「%1$s」</string>
+    <string name="geofence_status_cleared_all">已清除所有覆盖物</string>
+    <string name="geofence_status_clear_marker">已清除 Marker，请重新点击地图</string>
+    <string name="geofence_marker_inside">Marker 在围栏「%1$s」内</string>
+    <string name="geofence_marker_outside">Marker 不在任何围栏内</string>
 
 
     <!--    MapItemScreen-->
-    <string name="map_item_map_render">地图渲染</string>
+    <string name="map_item_map_render">添加地图</string>
     <string name="map_sky_title">天空盒子</string>
     <string name="map_sky_subtitle">高 zoom + 大 pitch 时顶部天空效果</string>
     <string name="map_sky_tip">提示：拉到高 zoom (&gt;=18) 并双指 pitch，观察顶部天空开关效果。</string>
     <string name="map_debug_on">开启调试</string>
     <string name="map_debug_off">关闭调试</string>
-    <string name="map_item_map_control">地图视角控制</string>
+    <string name="map_item_map_control">地图视角</string>
     <string name="map_item_map_gesture">地图手势</string>
     <string name="map_item_map_gesture_control">地图手势控制</string>
     <string name="map_item_gesture_coordination">手势协调（互斥/同时）</string>
@@ -127,6 +223,7 @@
     <string name="gesture_coordination_simultaneous_hint">关闭后仅单路 Progressive，互斥分组不生效</string>
     <string name="gesture_coordination_custom_title">互斥分组（多选后点确定）</string>
     <string name="gesture_coordination_confirm">确定</string>
+    <string name="gesture_coordination_applied">互斥分组已配置</string>
     <string name="gesture_coordination_custom_hint">将所选手势放入同一互斥集合；空选并确定可清空分组。未点确定前沿用地图默认互斥配置。</string>
     <string name="gesture_type_scale">缩放</string>
     <string name="gesture_type_rotate">旋转</string>
@@ -135,9 +232,11 @@
     <string name="gesture_type_move">平移 (Move)</string>
     <string name="gesture_type_long_press">长按</string>
     <string name="gesture_type_multi_finger_tap">多指点击</string>
+    <string name="map_item_location_layer">定位图层</string>
+    <string name="map_item_location_button">定位按钮</string>
     <string name="map_item_location">定位控件</string>
     <string name="map_item_compass">罗盘控件</string>
-    <string name="map_item_logo">logo控件</string>
+    <string name="map_item_logo">徽标控件</string>
     <string name="logo_gravity_label">logo位置 (setLogoGravity)</string>
     <string name="logo_gravity_top_end">右上 (TOP|END)</string>
     <string name="logo_gravity_top_start">左上 (TOP|START)</string>
@@ -151,9 +250,9 @@
     <string name="map_item_scale_bar">比例尺</string>
     <string name="map_item_zoom">缩放控件</string>
     <string name="map_item_map_event_listener">地图事件监听</string>
-    <string name="map_item_map_style">样式切换</string>
-    <string name="map_item_day_night_mode">日夜模式</string>
-    <string name="map_item_poi_click_center">Poi点击居中</string>
+    <string name="map_item_map_style">地图样式</string>
+    <string name="map_item_day_night_mode">日夜模式控件</string>
+    <string name="map_item_poi_click_center">兴趣点点击查询</string>
 
     <!--    MapRenderScreen-->
     <string name="map_style_load_error_network">地图加载失败，请检查网络连接后重试</string>
@@ -164,6 +263,18 @@
     <string name="map_language_label">标签语言</string>
     <string name="map_language_description">BCP 47 标签,名称字段不存在时回退到 name</string>
     <string name="map_sky_hint">提示：拉到高 zoom (>=18) 并双指 pitch，观察顶部天空开关效果。</string>
+    <string name="map_lang_default">默认 (矢量瓦片 name)</string>
+    <string name="map_lang_en">英语 (en)</string>
+    <string name="map_lang_zh">中文 (zh)</string>
+    <string name="map_lang_ms">马来语 (ms)</string>
+    <string name="map_lang_th">泰语 (th)</string>
+    <string name="map_lang_ar">阿拉伯语 (ar)</string>
+    <string name="ui_lang_switch_to_en">Switch to English</string>
+    <string name="ui_lang_switch_to_zh">切换为中文</string>
+    <string name="demo_config_panel_title">配置面板</string>
+    <string name="demo_config_panel_expand">展开配置</string>
+    <string name="demo_config_panel_collapse">收起配置</string>
+    <string name="demo_config_panel_toggle">配置</string>
 
     <!--    DayNightScreen-->
     <string name="day_night_title">日夜模式</string>
@@ -183,8 +294,23 @@
 
     <!--    MapStyleScreen-->
     <string name="map_style_label">样式 ID</string>
+    <string name="map_style_light">浅色</string>
+    <string name="map_style_dark">深色</string>
     <string name="map_style_preload">预加载</string>
     <string name="map_style_switch">切换</string>
+    <string name="map_error_message_format">地图错误 (%1$d): %2$s</string>
+
+    <!--    MapControlScreen-->
+    <string name="map_control_panel_title">地图控制</string>
+    <string name="panel_expand">展开</string>
+    <string name="panel_collapse">收起</string>
+    <string name="map_camera_tilt">倾斜角度</string>
+    <string name="map_camera_bearing">旋转角度</string>
+    <string name="map_camera_zoom">比例尺</string>
+    <string name="map_camera_min_tilt">最小倾斜角</string>
+    <string name="map_camera_max_tilt">最大倾斜角</string>
+    <string name="map_camera_min_zoom">最小比例尺</string>
+    <string name="map_camera_max_zoom">最大比例尺</string>
     <string name="map_item_double_tap_delay">双击延时</string>
     <string name="map_item_zoom_center_mode">缩放中心模式</string>
     <string name="map_item_double_tap_zoom_factor">双击缩放因子</string>
@@ -221,6 +347,9 @@
     <string name="location_pulse_animation">脉冲动画</string>
     <string name="location_camera_mode">相机跟踪模式</string>
     <string name="location_render_mode">渲染模式</string>
+    <string name="location_render_mode_normal">NORMAL (圆点)</string>
+    <string name="location_render_mode_compass">COMPASS (指南针)</string>
+    <string name="location_render_mode_gps">GPS (导航箭头)</string>
     <string name="location_move_to_current">移动到当前位置</string>
     <string name="location_no_location">无法获取当前位置</string>
     <string name="location_show_button">显示定位按钮</string>
@@ -236,6 +365,8 @@
     <string name="location_gravity_center">居中 (CENTER)</string>
     <string name="location_gravity_middle_end">居中靠右 (Middle|END)</string>
     <string name="location_accuracy_format">精度圈透明度: %1$s</string>
+    <string name="location_mock_gps_start">Mock GPS</string>
+    <string name="location_mock_gps_stop">停止 Mock</string>
 
     <!--    MapControlScreen-->
     <string name="change_camera">调整</string>
@@ -253,6 +384,21 @@
     <string name="double_tap_delay_label">双击延时: %1$d ms</string>
     <string name="fling_duration_label">惯性滑动基础时长: %1$d ms</string>
     <string name="inertia_scroll_enabled_label">启用惯性滑动</string>
+    <string name="two_finger_tap_zoom_hint">说明：开启后，双指同时点击地图将执行缩小一级动画；关闭后，双指点击将不触发缩小逻辑。</string>
+    <string name="double_tap_delay_hint">说明：启用自定义检测后，两次点击间隔小于上述延迟时间将判定为双击放大。建议测试 300ms-500ms。</string>
+    <string name="double_tap_tap_log_title">点击日志 (显示点击间隔):</string>
+    <string name="double_tap_screen_down">屏幕按下</string>
+    <string name="double_tap_tap_interval">%1$s (间隔: %2$dms)</string>
+    <string name="zoom_center_mode_title">缩放中心模式:</string>
+    <string name="zoom_center_mode_gesture">手势焦点 (gesture-center)</string>
+    <string name="zoom_center_mode_screen">屏幕中心 (screen-center)</string>
+    <string name="zoom_center_mode_hint">说明：\'gesture-center\'以手势点（如双指中点、双击点）为焦点缩放；\'screen-center\'以屏幕中心为中心缩放。</string>
+    <string name="fling_duration_hint">说明：开关控制手势模块是否产生惯性滑动（松手后的减速动画）。时长为手势层基础参数；设为 0 也会关闭惯性。关闭开关时仍会保存当前时长，便于再次开启。</string>
+    <string name="zoom_animation_duration_enabled">启用自定义缩放动画时长</string>
+    <string name="zoom_animation_duration_label">动画时长: %1$d ms</string>
+    <string name="zoom_animation_duration_hint">说明：设置双击、两指单击等操作时的缩放过渡时长。0ms 表示立即完成。关闭开关后将恢复系统默认 300ms。</string>
+    <string name="double_tap_tilt_current">当前倾斜角: %1$.1f°</string>
+    <string name="double_tap_tilt_reset_hint">说明：开启后双击地图将复位倾斜角为 0，且不再触发缩放。建议先双指上滑倾斜地图再测试。</string>
 
     <!--    overlay功能项 overlay_item_marker-->
     <string name="overlay_item_marker_switch_text">点击地图添加Marker</string>
@@ -270,6 +416,14 @@
     <string name="line_glow_color">发光颜色</string>
     <string name="line_glow_radius">发光半径 (1～30)</string>
     <string name="line_draw">绘制</string>
+    <string name="line_directional_arrows">方向箭头</string>
+    <string name="line_arrow_style">箭头样式</string>
+    <string name="line_arrow_color">箭头颜色</string>
+    <string name="line_cap_start">起点线帽</string>
+    <string name="line_cap_end">终点线帽</string>
+    <string name="line_toast_drag_finished">拖拽结束: %1$s</string>
+    <string name="line_toast_click">点击了线: %1$s</string>
+    <string name="line_toast_long_click">长按了线: %1$s</string>
 
     <!--    MapEventListenerScreen-->
     <string name="map_event_listener_sheet_title">事件监听控制</string>
@@ -281,6 +435,19 @@
     <string name="map_event_listener_map_click">地图点击事件</string>
     <string name="map_event_listener_log_title">日志</string>
     <string name="map_event_listener_clear_log">清空日志</string>
+
+    <!--    ScaleScreen-->
+    <string name="scale_show_bar">显示比例尺</string>
+    <string name="scale_bar_max_width_label">比例尺最大宽度 (px): %1$d [%2$d, %3$d]</string>
+    <string name="scale_bar_gravity_label">比例尺位置 (setScaleBarGravity)</string>
+
+    <!--    PoiClickScreen-->
+    <string name="poi_center_on_click">点击POI层中</string>
+    <string name="poi_query_layer_hint">点击地图后仅检索样式图层: poi</string>
+    <string name="poi_hit_name">当前命中POI 名称: %1$s</string>
+    <string name="poi_hit_type">当前命中POI 类型: %1$s</string>
+    <string name="poi_hit_coordinates">当前命中POI 坐标: %1$s</string>
+    <string name="poi_clear_highlight">清除高亮</string>
 
     <!--    ZoomScreen-->
     <string name="zoom_show_buttons">显示缩放按钮</string>
@@ -354,13 +521,20 @@
     <string name="fill_pattern_image_garden">garden</string>
     <string name="fill_pattern_image_harbor">harbor</string>
     <string name="fill_paste_button">粘贴</string>
+    <string name="fill_coordinates_hint">格式：[[外边线],[内边线],...]，边线首尾须闭合，lat,lng;lat,lng;...</string>
+    <string name="fill_stroke_dash_hint">可选，逗号分隔像素段长，如 2,4</string>
+    <string name="fill_pattern_image_hint">pattern为image时使用，demo中的本地图片</string>
+    <string name="fill_translate_anchor_hint">地理平面和屏幕显示平面</string>
+    <string name="fill_toast_drag_finished">拖拽结束: %1$s</string>
+    <string name="fill_toast_click">点击了面: %1$s</string>
+    <string name="fill_toast_long_click">长按了面: %1$s</string>
 
     <!--    CircleScreen-->
-    <string name="circle_list_basic">基础绘制</string>
-    <string name="circle_list_geodesic">等距模式</string>
-    <string name="circle_list_draggable">可拖拽</string>
-    <string name="circle_list_inner_shadow">启用内阴影</string>
-    <string name="circle_list_outer_glow">启用外发光</string>
+    <string name="circle_list_basic">基础圆</string>
+    <string name="circle_list_geodesic">等距圆</string>
+    <string name="circle_list_draggable">可拖拽圆</string>
+    <string name="circle_list_inner_shadow">内阴影圆</string>
+    <string name="circle_list_outer_glow">外发光圆</string>
     <string name="circle_list_scan">扫描动画</string>
     <string name="circle_list_pulse">脉动动画</string>
     <string name="circle_list_radius_breath">半径呼吸动画</string>
@@ -377,6 +551,7 @@
     <string name="circle_switch_draggable">可拖拽 (Draggable)</string>
     <string name="circle_switch_inner_shadow">启用内阴影</string>
     <string name="circle_inner_shadow_blur">模糊度</string>
+    <string name="circle_inner_shadow_color">内阴影颜色</string>
     <string name="circle_inner_shadow_hint">说明：内阴影颜色与不透明度与上方「填充颜色」「填充透明度」一致。</string>
     <string name="circle_switch_outer_glow">启用外发光</string>
     <string name="circle_glow_color">发光颜色</string>
@@ -431,6 +606,14 @@
     <string name="search_hint_place_id">从搜索结果/建议中获得，例如 places/{id}</string>
     <string name="search_advanced_more">更多参数</string>
     <string name="search_advanced_less">收起参数</string>
+    <string name="search_not_set">不设置</string>
+    <string name="search_default_value">默认</string>
+    <string name="search_rank_default_hint">默认 POPULARITY</string>
+    <string name="search_radius_required_hint">必填，0~50000</string>
+    <string name="search_suggestion_cd">提示词</string>
+    <string name="search_poi_type_optional">地点类型（可选）</string>
+    <string name="search_poi_type_label">类型</string>
+    <string name="search_poi_all">全部</string>
     <string name="search_action_get_detail">获取地点详情</string>
     <string name="search_loading">请求中…</string>
     <string name="search_fetch_photo">获取图片</string>
@@ -475,6 +658,31 @@
     <string name="search_label_suggest_types">types</string>
     <string name="search_hint_suggest_types">逗号分隔，如：hotel,atm</string>
     <string name="search_photo_section">图片</string>
+
+    <!--    MarkerAnimationScreen    -->
+    <string name="marker_anim_marker_count">Marker数量</string>
+    <string name="marker_anim_selected">已选中</string>
+    <string name="marker_anim_tap_to_add">点击地图可添加 Marker</string>
+    <string name="marker_anim_tap_empty_to_add">点击地图空白处也可以添加 Marker</string>
+    <string name="marker_anim_dragging">正在拖动 Marker</string>
+    <string name="marker_anim_add">添加</string>
+    <string name="marker_anim_clear">清除</string>
+    <string name="marker_anim_clear_all">清除所有 Marker</string>
+    <string name="marker_anim_stop_all">停止所有的动画</string>
+    <string name="marker_anim_enter_title">进入动画</string>
+    <string name="marker_anim_enter_desc">对当前全部 Marker 立即播放进入效果。</string>
+    <string name="marker_anim_disappear_title">消失动画</string>
+    <string name="marker_anim_disappear_desc">播放后会自动移除全部 Marker；选择「无」会直接移除。</string>
+    <string name="marker_anim_select_title">点选动画</string>
+    <string name="marker_anim_select_desc">选择类型后，点击已有 Marker 触发点选动画；选择「无」时点击会停止该 Marker 当前动画。点击空白处仅添加 Marker。有动画的 Marker 会先停止当前动画再播放点选动画。</string>
+    <string name="marker_anim_type_label">动画类型</string>
+    <string name="marker_anim_duration_label">duration(ms)</string>
+    <string name="marker_anim_enter_mode">进入动画</string>
+    <string name="marker_anim_disappear_mode">消失动画</string>
+    <string name="marker_anim_play_enter">播放进入动画</string>
+    <string name="marker_anim_play_disappear">播放消失动画</string>
+    <string name="marker_anim_stop">停止</string>
+    <string name="marker_anim_cancel">取消</string>
 
     <!--    MarkerViewScreen    -->
     <string name="markerview_add">添加</string>

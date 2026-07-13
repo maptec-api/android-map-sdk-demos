@@ -3,7 +3,6 @@ package com.maptec.applied.demo
 import android.util.Log
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -16,12 +15,14 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
+import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.maptec.applied.demo.ext.DEMO_BACK_BUTTON_TAG
+import com.maptec.applied.demo.ext.clickClickableText
+import com.maptec.applied.demo.ext.openWebServicesDemo
+import com.maptec.applied.demo.ext.getTestString
 import com.maptec.applied.demo.ext.waitForApiResponseKey
-import com.maptec.applied.demo.ext.waitForMapRendered
-import com.maptec.applied.demo.ui.screens.searchScreenViewModel
-import com.maptec.applied.demo.viewmodel.SearchViewModel.SearchTab
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Rule
@@ -29,8 +30,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * SearchScreen API 集成测试：通过 UI 交互触发搜索 API 调用，
- * 利用 ApiResponseDebugCard 中的 JSON 响应进行 API 功能验证。
+ * 搜索 Screen API 集成测试（TextSearch / Nearby / Suggest / Places）。
  */
 @RunWith(AndroidJUnit4::class)
 class SearchScreenTest {
@@ -43,8 +43,7 @@ class SearchScreenTest {
         composeTestRule.waitForIdle()
     }
 
-    private fun getString(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun getString(resId: Int): String = getTestString(resId)
 
     companion object {
         private const val TAG = "SearchScreenTest"
@@ -53,7 +52,6 @@ class SearchScreenTest {
     /** 打出当前语义树中所有关心的 testTag，用于在平板上诊断渲染差异 */
     private fun logTestTags(context: String) {
         val targetTags = listOf(
-            "search_tab_text", "search_tab_nearby", "search_tab_suggest", "search_tab_detail",
             "search_query_input", "search_submit_button",
             "search_nearby_radius", "search_nearby_submit_button", "search_nearby_types_dropdown",
             "search_input_place_id", "search_input_suggest_types",
@@ -66,43 +64,33 @@ class SearchScreenTest {
         val missing = targetTags - found
         Log.e(TAG, "[$context] Found: $found")
         Log.e(TAG, "[$context] Missing: $missing")
-        // 诊断当前哪个 tab 被选中
-        val tabNames = listOf("text", "nearby", "suggest", "detail")
-        val selectedTabs = tabNames.filter { name ->
-            composeTestRule.onAllNodes(
-                hasTestTag("search_tab_$name") and isSelected(),
-                useUnmergedTree = true
-            ).fetchSemanticsNodes().isNotEmpty()
-        }
-        Log.e(TAG, "[$context] SelectedTab: $selectedTabs")
     }
 
-    /** 从主屏进入搜索服务页面 */
+    /** 从主屏进入文本搜索页面 */
     private fun navigateToSearchScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.screen_item_unified_search))
-            .performClick()
+        composeTestRule.openWebServicesDemo(R.string.catalog_text_search)
         composeTestRule.waitForIdle()
         composeTestRule.waitUntil(5000) {
-            composeTestRule.onAllNodesWithTag("search_tab_text", useUnmergedTree = true)
+            composeTestRule.onAllNodesWithTag("search_query_input", useUnmergedTree = true)
                 .fetchSemanticsNodes().isNotEmpty()
         }
         composeTestRule.waitForIdle()
         logTestTags("after_navigateToSearchScreen")
-        Thread.sleep(2000)
+    }
+
+    private fun catalogResForTab(labelResId: Int): Int = when (labelResId) {
+        R.string.search_tab_text -> R.string.catalog_text_search
+        R.string.search_tab_nearby -> R.string.catalog_nearby_search
+        R.string.search_tab_suggest -> R.string.catalog_suggest
+        R.string.search_tab_detail -> R.string.catalog_places
+        else -> error("Unknown tab label res $labelResId")
     }
 
     private fun switchToTab(labelResId: Int) {
-        val tab = when (labelResId) {
-            R.string.search_tab_text -> SearchTab.TEXT
-            R.string.search_tab_nearby -> SearchTab.NEARBY
-            R.string.search_tab_suggest -> SearchTab.SUGGEST
-            R.string.search_tab_detail -> SearchTab.DETAIL
-            else -> error("Unknown tab label res $labelResId")
-        }
-        // 直接通过 ViewModel 切换 tab
-        // Material3.Tab.onClick 在平板上不被 performClick() 触发 (Compose issue)
-        searchScreenViewModel?.switchTab(tab)
+        composeTestRule.onNodeWithTag(DEMO_BACK_BUTTON_TAG).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.clickClickableText(catalogResForTab(labelResId))
         composeTestRule.waitForIdle()
         logTestTags("switchToTab_${getString(labelResId)}")
     }
@@ -113,6 +101,17 @@ class SearchScreenTest {
             composeTestRule.onAllNodesWithTag("api_response_card", useUnmergedTree = true)
                 .fetchSemanticsNodes().isNotEmpty()
         }
+        // 收起软键盘：在横屏/平板上 IME 会进入全屏 extract 模式覆盖整个界面，
+        // 导致顶部的 api_response_card 虽然存在于语义树中却被判定为“未显示”。
+        dismissSoftKeyboard()
+        composeTestRule.waitForIdle()
+
+    }
+
+    /** 关闭软键盘，避免全屏 IME 遮挡待断言的组件 */
+    private fun dismissSoftKeyboard() {
+        runCatching { Espresso.closeSoftKeyboard() }
+        composeTestRule.waitForIdle()
     }
 
     private fun replaceField(tag: String, value: String) {
@@ -149,20 +148,15 @@ class SearchScreenTest {
         } catch (_: AssertionError) {
         }
         node.performClick()
+        composeTestRule.waitForIdle()
+
     }
 
     private fun navigateToNearbyTab() {
-        switchToTab(R.string.search_tab_nearby)
-        // 诊断：刚切换完 tab 后检查语义树
-        logTestTags("after_switchTo_nearby")
-        // 等待 nearby tab 的标签订阅指示可见，而非直接等内部内容
-        composeTestRule.waitUntil(10_000) {
-            composeTestRule.onAllNodesWithTag("search_tab_nearby", useUnmergedTree = true)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        composeTestRule.onNodeWithTag(DEMO_BACK_BUTTON_TAG).performClick()
         composeTestRule.waitForIdle()
-        logTestTags("before_wait_nearbyContent")
-        // 平板/大屏上可能需要更长时间完成 compositon
+        composeTestRule.clickClickableText(R.string.catalog_nearby_search)
+        logTestTags("after_switchTo_nearby")
         composeTestRule.waitUntil(10_000) {
             composeTestRule.onAllNodesWithTag("search_nearby_radius", useUnmergedTree = true)
                 .fetchSemanticsNodes().isNotEmpty()
@@ -193,6 +187,12 @@ class SearchScreenTest {
             composeTestRule.onAllNodesWithTag("place_detail_card", useUnmergedTree = true)
                 .fetchSemanticsNodes().isNotEmpty()
         }
+        composeTestRule.waitForIdle()
+    }
+
+    private fun assertPlaceDetailDisplayed() {
+        composeTestRule.onNodeWithTag("place_detail_card", useUnmergedTree = true)
+            .assertIsDisplayed()
     }
 
     /** 等待 API 响应 JSON 中出现指定关键字 */
@@ -359,10 +359,18 @@ class SearchScreenTest {
             .performScrollTo()
             .performClick()
         waitForPlaceDetail()
-        composeTestRule.onNodeWithTag("place_detail_card").assertIsDisplayed()
-         composeTestRule.waitForApiResponseKey("status")
-         composeTestRule.waitForApiResponseKey("OK")
-         composeTestRule.waitForApiResponseKey("placeId")
+        assertPlaceDetailDisplayed()
+        // placeDetail API is async; wait for loaded content before checking response JSON
+        composeTestRule.waitUntil(60_000) {
+            composeTestRule.onAllNodesWithText(getString(R.string.search_detail_name), useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+        // place detail API response is shown on the active search screen
+        composeTestRule.onNodeWithTag("api_response_card").assertIsDisplayed()
+        composeTestRule.waitForApiResponseKey("status", timeoutMs = 60_000)
+        composeTestRule.waitForApiResponseKey("OK", timeoutMs = 60_000)
+        composeTestRule.waitForApiResponseKey("places", timeoutMs = 60_000)
+        composeTestRule.waitForApiResponseKey("suggestions", timeoutMs = 60_000)
     }
 
 
@@ -408,10 +416,10 @@ class SearchScreenTest {
         }
     }
 
-    // ==================== Tab 切换 ====================
+    // ==================== Catalog navigation ====================
 
     @Test
-    fun tabSwitching_noCrash() {
+    fun catalogScreenSwitching_noCrash() {
         navigateToSearchScreen()
         switchToTab(R.string.search_tab_nearby)
         switchToTab(R.string.search_tab_suggest)
@@ -446,7 +454,7 @@ class SearchScreenTest {
             composeTestRule.activity.onBackPressedDispatcher?.onBackPressed()
         }
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.screen_item_unified_search))
+        composeTestRule.onNodeWithText(getString(R.string.catalog_text_search))
             .assertIsDisplayed()
     }
 }

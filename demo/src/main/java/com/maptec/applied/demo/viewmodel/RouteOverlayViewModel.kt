@@ -30,7 +30,9 @@ data class RouteOverlayUIData(
 
 private val log = LoggerFactory.getLogger(LOG_MODULE).withTag("RouteOverlayViewModel")
 
-class RouteOverlayViewModel(private val routeService: RouteService): ViewModel() {
+class RouteOverlayViewModel(
+    private val calculateRoute: suspend (RouteRequest) -> Result<RouteResponse>
+): ViewModel() {
 
     private val _routes = MutableStateFlow<List<RouteOverlayUIData>>(emptyList())
     val routes: StateFlow<List<RouteOverlayUIData>> = _routes.asStateFlow()
@@ -67,13 +69,13 @@ class RouteOverlayViewModel(private val routeService: RouteService): ViewModel()
 
         val waypoints = parseWaypoints(waypointsStr)
         if (waypoints == null) {
-            _error.value = RouteError(RouteError.INVALID_PARAMETER.code, "途经点格式错误，请使用 [(lat,lng),...] 格式")
+            _error.value = RouteError(RouteError.INVALID_PARAMETER.code, "途经点格式错误，请使用 [(lat,lng),...] 或 lat,lng 格式")
             return
         }
 
         job = viewModelScope.launch {
             log.d { "doSearchRoute: start: $start, destination: $destination, waypoints: $waypointsStr, alternatives: $alternatives, strategy: $strategy, avoid: $avoid" }
-            routeService.calculateRoute(
+            calculateRoute(
                 RouteRequest(
                     origin = LocationPoint(startCoordinates),
                     destination = LocationPoint(destinationCoordinates),
@@ -137,22 +139,25 @@ class RouteOverlayViewModel(private val routeService: RouteService): ViewModel()
         
         val result = mutableListOf<LocationPoint>()
         try {
-            // 匹配 (lat,lng) 格式
+            // 先尝试匹配 (lat,lng) 格式
             val regex = Regex("\\(([^)]+)\\)")
-            val matches = regex.findAll(str)
+            val matches = regex.findAll(str).toList()
             
-            val matchesList = matches.toList()
-            if (matchesList.isEmpty()) return null
-            
-            for (match in matchesList) {
-                val pair = match.groupValues[1].split(",")
-                if (pair.size == 2) {
+            if (matches.isNotEmpty()) {
+                for (match in matches) {
+                    val pair = match.groupValues[1].split(",")
+                    if (pair.size != 2) return null
                     val lat = pair[0].trim().toDouble()
                     val lng = pair[1].trim().toDouble()
                     result.add(LocationPoint(GeoCoordinate(longitude = lng, latitude = lat)))
-                } else {
-                    return null
                 }
+            } else {
+                // 降级：尝试直接解析为单个 "lat,lng"（与 (lat,lng) 格式一致）
+                val pair = str.trim().split(",")
+                if (pair.size != 2) return null
+                val lat = pair[0].trim().toDouble()
+                val lng = pair[1].trim().toDouble()
+                result.add(LocationPoint(GeoCoordinate(longitude = lng, latitude = lat)))
             }
         } catch (e: Exception) {
             log.e { "parseWaypoints error: ${e.message}" }
@@ -182,7 +187,7 @@ class RouteOverlayViewModel(private val routeService: RouteService): ViewModel()
 
         // 3. 使用 CameraUpdateFactory 创建更新对象
         // 参数 2、3、4、5 分别为左、上、右、下的内边距（单位：像素），防止路线贴边
-        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 100, 100, 100, 100)
+        val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 200, 200, 200, 200)
 
         // 4. 执行相机动画
         map.animateCamera(cameraUpdate, 500) // 500ms平滑过渡
@@ -194,7 +199,7 @@ class RouteOverlayViewModelFactory(private val context: Context) : ViewModelProv
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RouteOverlayViewModel::class.java)) {
             val routeService = RouteService.getInstance(context.applicationContext, null)
-            return RouteOverlayViewModel(routeService) as T
+            return RouteOverlayViewModel(routeService::calculateRoute) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

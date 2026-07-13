@@ -8,7 +8,6 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -20,7 +19,12 @@ import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import com.maptec.applied.maps.UiSettings
 import com.maptec.applied.maps.ZoomButtonsView
@@ -85,7 +89,7 @@ class ZoomScreenTest {
     @Before
     fun setUp() {
         navigateToZoomScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
 
         //在测试环境移除 FPS 监听，防止不断触发 State 更新导致 waitForIdle() 死锁卡住
@@ -103,9 +107,7 @@ class ZoomScreenTest {
 
     private fun navigateToZoomScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_zoom)).performClick()
+        composeTestRule.openUiControlsDemo(R.string.map_item_zoom)
         composeTestRule.waitForIdle()
     }
 
@@ -240,9 +242,9 @@ class ZoomScreenTest {
         composeTestRule.onNodeWithTag(TAG_DROPDOWN_PRECISION).performScrollTo().performClick()
         composeTestRule.waitForIdle()
 
-        val precisionOptionText =
-            "2 ${getTestString(R.string.zoom_precision_decimal_unit)}  (\"%.2f\")"
-        composeTestRule.onNodeWithText(precisionOptionText).performClick()
+        composeTestRule.onNodeWithTag("zoom_precision_item_2")
+            .performScrollTo()
+            .performClick()
         composeTestRule.waitForIdle()
 
         withUiSettings { settings ->
@@ -257,7 +259,9 @@ class ZoomScreenTest {
         val topLabel = getTestString(R.string.zoom_level_position_top)
         composeTestRule.onNodeWithTag(TAG_DROPDOWN_LEVEL_POSITION).performScrollTo().performClick()
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(topLabel).performClick()
+        composeTestRule.onNodeWithTag("zoom_level_position_item_$topLabel")
+            .performScrollTo()
+            .performClick()
         composeTestRule.waitForIdle()
 
         withUiSettings { settings ->

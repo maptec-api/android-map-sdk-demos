@@ -31,7 +31,7 @@ import com.maptec.applied.maps.overlay.fill.Fill
 import com.maptec.applied.maps.overlay.fill.FillOptions
 import com.maptec.applied.maps.overlay.marker.Marker
 import com.maptec.applied.maps.overlay.marker.MarkerOptions
-import com.maptec.applied.style.layers.Property
+import com.maptec.applied.style.Property
 import com.maptec.applied.utils.BitmapUtils
 import android.graphics.Bitmap
 import kotlinx.coroutines.Job
@@ -127,7 +127,7 @@ class SearchViewModel(
 
     // ==================== 地点详情参数 ====================
 
-    private val _detailPlaceId = MutableStateFlow("")
+    private val _detailPlaceId = MutableStateFlow("244737191329156445")
     val detailPlaceId: StateFlow<String> = _detailPlaceId.asStateFlow()
 
     // ==================== 文本搜索参数 ====================
@@ -161,7 +161,7 @@ class SearchViewModel(
 
     // ==================== 附近搜索参数 ====================
 
-    private val _nearbyCenterString = MutableStateFlow("1.4,103.75")
+    private val _nearbyCenterString = MutableStateFlow("1.360879,103.732578")
     val nearbyCenterString: StateFlow<String> = _nearbyCenterString.asStateFlow()
 
     private val _nearbyTypes = MutableStateFlow("")
@@ -1071,6 +1071,13 @@ class SearchViewModel(
         val lat = parts[0].trim().toDoubleOrNull() ?: return null
         val lng = parts[1].trim().toDoubleOrNull() ?: return null
         return GeoCoordinate(longitude = lng, latitude = lat)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        mapLibreMapRef = null
+        overlayInitialized = false
+        markerIconBitmaps.clear()
     }
 
     companion object {

@@ -41,12 +41,12 @@ composeBom = "2024.09.00"
 navigationCompose = "2.7.5"
 
 # MapTec AAR Versions
-mapsdk = "0.0.6.b4954f-SNAPSHOT"
-mapengineGesture = "0.0.6.b4954f-SNAPSHOT"
-route = "0.0.6.b4954f-SNAPSHOT"
-search = "0.0.6.b4954f-SNAPSHOT"
-gpsProvider = "0.0.6.b4954f-SNAPSHOT"
-javaBase = "0.0.6.b4954f-SNAPSHOT"
+mapsdk = "1.0.0"
+mapengineGesture = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
+route = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
+search = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
+gpsProvider = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
+javaBase = "0.0.6.cnb-vog-1jsjkkr82-SNAPSHOT"
 
 
 [libraries]

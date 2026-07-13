@@ -9,8 +9,14 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.openMapsDemo
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.openWebServicesDemo
 import com.maptec.applied.demo.ext.getMapView
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.geometry.LatLng
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -44,18 +50,16 @@ class PoiClickScreenTest {
     @get:Rule
     val ruleChain: TestRule = RuleChain.outerRule(permissionRule).around(composeTestRule)
 
-    private fun getString(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    private fun getString(resId: Int): String = getTestString(resId)
 
     /**
      * 导航逻辑：从主页跳转到“点击POI居中”示例页面
      */
     private fun navigateToPoiClickScreen() {
-        composeTestRule.onNodeWithText(getString(R.string.screen_item_map)).performClick()
-        composeTestRule.onNodeWithText(getString(R.string.map_item_poi_click_center)).performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_poi_click_center)
         composeTestRule.waitForIdle()
         // 等待地图基础渲染完成
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
 
         // 等待地图非空且坐标不再是默认的 0,0 (如果是以 0,0 为起始点)
 
@@ -120,7 +124,7 @@ class PoiClickScreenTest {
 
                 // 验证 UI 中的 POI 名称是否已经不再是初始的 "-"
                 val isHit = try {
-                    composeTestRule.onNodeWithText("当前命中POI名称: -").assertDoesNotExist()
+                    composeTestRule.onNodeWithText("当前命中POI 名称: -").assertDoesNotExist()
                     true
                 } catch (e: AssertionError) {
                     false
@@ -153,7 +157,7 @@ class PoiClickScreenTest {
         }
 
         // 最后的断言确保 UI 也更新了
-        composeTestRule.onNodeWithText("当前命中POI名称: ", substring = true).assertIsDisplayed()
+        composeTestRule.onNodeWithText("当前命中POI 名称: ", substring = true).assertIsDisplayed()
     }
 
     /**
@@ -187,7 +191,7 @@ class PoiClickScreenTest {
 //        )
 //
 //        // 5. 预期结果 B：UI 仍然需要显示点击到的 POI 信息
-//        composeTestRule.onNodeWithText("当前命中POI名称: ", substring = true).assertIsDisplayed()
+//        composeTestRule.onNodeWithText("当前命中POI 名称: ", substring = true).assertIsDisplayed()
 //    }
 
     /**
@@ -205,8 +209,8 @@ class PoiClickScreenTest {
         composeTestRule.waitForIdle()
 
         // 3. 预期结果：UI 上的文本应该恢复成初始的横杠 "-"
-        composeTestRule.onNodeWithText("当前命中POI名称: -").assertIsDisplayed()
-        composeTestRule.onNodeWithText("当前命中POI坐标: -").assertIsDisplayed()
+        composeTestRule.onNodeWithText("当前命中POI 名称: -").assertIsDisplayed()
+        composeTestRule.onNodeWithText("当前命中POI 坐标: -").assertIsDisplayed()
     }
 
     /**
@@ -223,6 +227,6 @@ class PoiClickScreenTest {
         composeTestRule.onNodeWithTag("poi_center_switch").performClick()
 
         // 3. 预期结果：根据业务代码 logic，切换开关会调用 clearSelection()，信息应重置
-        composeTestRule.onNodeWithText("当前命中POI名称: -").assertIsDisplayed()
+        composeTestRule.onNodeWithText("当前命中POI 名称: -").assertIsDisplayed()
     }
 }

@@ -17,9 +17,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
+import com.maptec.applied.demo.ext.DEMO_CONFIG_PANEL_TOGGLE_TAG
+import com.maptec.applied.demo.ext.collapseConfigPanel
+import com.maptec.applied.demo.ext.expandConfigPanel
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -46,7 +50,6 @@ class DayNightScreenTest {
         private const val TAG_DROPDOWN = "dropdown_day_night_gravity"
         private const val TAG_TEXT_FIELD = "textfield_day_night_gravity"
         private const val TAG_MENU = "menu_day_night_gravity"
-        private const val TAG_TITLE_BAR = "day_night_title_bar"
     }
 
     private val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
@@ -72,7 +75,7 @@ class DayNightScreenTest {
     @Before
     fun setUp() {
         navigateToDayNightScreen()
-        composeTestRule.waitForMapRendered()
+        composeTestRule.waitForMapDemoReady()
         mapView = composeTestRule.getMapView()
     }
 
@@ -85,9 +88,7 @@ class DayNightScreenTest {
 
     private fun navigateToDayNightScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_day_night_mode)).performClick()
+        composeTestRule.openUiControlsDemo(R.string.map_item_day_night_mode)
         composeTestRule.waitForIdle()
     }
 
@@ -197,18 +198,18 @@ class DayNightScreenTest {
     }
 
     @Test
-    fun testTitleBar_CollapsesAndExpandsPanel() {
+    fun testConfigPanel_CollapsesAndExpands() {
         composeTestRule.onNodeWithTag(TAG_SWITCH).performScrollTo()
         composeTestRule.onNodeWithTag(TAG_SWITCH).assertIsDisplayed()
+        composeTestRule.onNodeWithTag(DEMO_CONFIG_PANEL_TOGGLE_TAG).assertDoesNotExist()
 
-        composeTestRule.onNodeWithTag(TAG_TITLE_BAR).performClick()
+        composeTestRule.collapseConfigPanel()
         composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(DEMO_CONFIG_PANEL_TOGGLE_TAG).assertIsDisplayed()
 
-        composeTestRule.onNodeWithTag(TAG_SWITCH).assertDoesNotExist()
-
-        composeTestRule.onNodeWithTag(TAG_TITLE_BAR).performClick()
+        composeTestRule.expandConfigPanel()
         composeTestRule.waitForIdle()
-
+        composeTestRule.onNodeWithTag(DEMO_CONFIG_PANEL_TOGGLE_TAG).assertDoesNotExist()
         composeTestRule.onNodeWithTag(TAG_SWITCH).performScrollTo()
         composeTestRule.onNodeWithTag(TAG_SWITCH).assertIsDisplayed()
     }
@@ -221,7 +222,7 @@ class DayNightScreenTest {
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText(getTestString(R.string.map_item_day_night_mode)).assertIsDisplayed()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_location)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(getTestString(R.string.map_item_zoom)).assertIsDisplayed()
     }
 
     @Test
@@ -235,6 +236,6 @@ class DayNightScreenTest {
         }
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).assertIsDisplayed()
+        composeTestRule.onNodeWithText(getTestString(R.string.catalog_main_interaction)).assertIsDisplayed()
     }
 }

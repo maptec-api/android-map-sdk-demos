@@ -3,13 +3,11 @@ package com.maptec.applied.demo.map
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.maptec.applied.maps.MapView
 import com.maptec.applied.maps.MapOptions
-import com.maptec.applied.style.layers.PropertyFactory.backgroundColor
 
 /** SDK 默认地图加载占位色，与 MapOptions 内置 LIGHT_GRAY 一致。 */
 const val MAP_BACKGROUND_COLOR = 0xFFF0E9E1.toInt()
@@ -23,7 +21,7 @@ fun defaultDemoMapOptions(context: Context): MapOptions {
 
 @Composable
 fun MapViewLifecycleEffect(mapView: MapView) {
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, mapView) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {

@@ -3,7 +3,6 @@ package com.maptec.applied.demo.map
 import android.Manifest
 import android.os.Build
 import android.view.Gravity
-import android.view.View
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -16,21 +15,32 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
+import com.maptec.applied.demo.ext.getMapView
+import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openUiControlsDemo
+import com.maptec.applied.demo.ext.resetToMainCatalog
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.maps.MapView
 import com.maptec.applied.maps.widgets.ScaleView
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-/**
- * ScaleScreen 集成测试：从「基础地图能力」进入比例尺演示页，校验地图展示、
- * 比例尺开关、位置与最大宽度滑块等控件。
- */
 @RunWith(AndroidJUnit4::class)
 class ScaleScreenTest {
+
+    companion object {
+        private const val TAG_SWITCH = "switch_scale_enabled"
+        private const val TAG_DROPDOWN = "dropdown_scale_gravity"
+    }
 
     private val permissionRule = GrantPermissionRule.grant(
         Manifest.permission.INTERNET,
@@ -52,114 +62,89 @@ class ScaleScreenTest {
         .outerRule(permissionRule)
         .around(composeTestRule)
 
-    @After
-    fun tearDown() {
-        Thread.sleep(2000)
+    private lateinit var mapView: MapView
+
+    @Before
+    fun setUp() {
+        navigateToScaleScreen()
+        composeTestRule.waitForMapDemoReady()
+        mapView = composeTestRule.getMapView()
     }
 
-    private fun getString(resId: Int): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(resId)
+    @After
+    fun tearDown() {
+        composeTestRule.resetToMainCatalog()
+        composeTestRule.waitForIdle()
+    }
 
     private fun navigateToScaleScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.screen_item_map)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getString(R.string.map_item_scale_bar)).performClick()
+        composeTestRule.openUiControlsDemo(R.string.map_item_scale_bar)
         composeTestRule.waitForIdle()
     }
 
-    private fun findMapView(): MapView? =
-        composeTestRule.activity.findViewById<View>(android.R.id.content)
-            ?.findViewWithTag("mapView")
-
-    @Test
-    fun scaleScreen_toggleScaleBarEnabled() {
-        navigateToScaleScreen()
-        Thread.sleep(1000)
-
-        val mapView = findMapView()
-        assert(mapView != null) { "MapView not found" }
-
-        composeTestRule.onNodeWithTag("switch_scale_enabled")
-            .assertIsDisplayed()
-            .assertIsOn()
-
-        composeTestRule.onNodeWithTag("switch_scale_enabled").performClick()
-        Thread.sleep(500)
-        composeTestRule.onNodeWithTag("switch_scale_enabled").assertIsOff()
-
-        mapView?.getMapAsync {
-            assert(!it.uiSettings.isScaleBarEnabled) { "Scale bar should be disabled" }
+    private fun withUiSettings(action: (com.maptec.applied.maps.UiSettings) -> Unit) {
+        val latch = CountDownLatch(1)
+        var error: Throwable? = null
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            mapView.getMapAsync { map ->
+                try {
+                    action(map.uiSettings)
+                } catch (e: Throwable) {
+                    error = e
+                } finally {
+                    latch.countDown()
+                }
+            }
         }
-        Thread.sleep(500)
-
-        composeTestRule.onNodeWithTag("switch_scale_enabled").performClick()
-        Thread.sleep(500)
-        composeTestRule.onNodeWithTag("switch_scale_enabled").assertIsOn()
-
-        mapView?.getMapAsync {
-            assert(it.uiSettings.isScaleBarEnabled) { "Scale bar should be enabled" }
-        }
-        Thread.sleep(500)
+        assertTrue("获取 UiSettings 超时", latch.await(3, TimeUnit.SECONDS))
+        error?.let { throw it }
     }
 
     @Test
-    fun scaleScreen_changeScaleBarGravity() {
-        navigateToScaleScreen()
-        Thread.sleep(1000)
+    fun toggleScaleBarEnabled_updatesApi() {
+        composeTestRule.onNodeWithTag(TAG_SWITCH).assertIsDisplayed().assertIsOn()
+        withUiSettings { assertTrue("比例尺默认应开启", it.isScaleBarEnabled) }
 
-        val mapView = findMapView()
-        assert(mapView != null) { "MapView not found" }
+        composeTestRule.onNodeWithTag(TAG_SWITCH).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(TAG_SWITCH).assertIsOff()
+        withUiSettings { assertEquals(false, it.isScaleBarEnabled) }
 
-        composeTestRule.onNodeWithTag("dropdown_scale_gravity").performClick()
-        Thread.sleep(500)
-        composeTestRule.onNodeWithText("左上 (TOP|START)").performClick()
-        Thread.sleep(500)
-
-        mapView?.getMapAsync {
-            val expected = Gravity.TOP or Gravity.START
-            assert(it.uiSettings.scaleBarGravity == expected) {
-                "Scale bar gravity should be TOP|START, got ${it.uiSettings.scaleBarGravity}"
-            }
-        }
-        Thread.sleep(500)
-
-        composeTestRule.onNodeWithTag("dropdown_scale_gravity").performClick()
-        Thread.sleep(500)
-        composeTestRule.onNodeWithText("居中 (CENTER)").performClick()
-        Thread.sleep(500)
-
-        mapView?.getMapAsync {
-            val expected = Gravity.CENTER_VERTICAL or Gravity.CENTER_HORIZONTAL
-            assert(it.uiSettings.scaleBarGravity == expected) {
-                "Scale bar gravity should be CENTER, got ${it.uiSettings.scaleBarGravity}"
-            }
-        }
-        Thread.sleep(500)
-
-        composeTestRule.onNodeWithTag("dropdown_scale_gravity").performClick()
-        Thread.sleep(500)
-        composeTestRule.onNodeWithText("左下 (BOTTOM|START)").performClick()
-        Thread.sleep(500)
+        composeTestRule.onNodeWithTag(TAG_SWITCH).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag(TAG_SWITCH).assertIsOn()
+        withUiSettings { assertEquals(true, it.isScaleBarEnabled) }
     }
 
+    @Test
+    fun changeScaleBarGravity_updatesApi() {
+        composeTestRule.onNodeWithTag(TAG_DROPDOWN).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(getTestString(R.string.zoom_gravity_top_start)).performClick()
+        composeTestRule.waitForIdle()
+
+        withUiSettings { settings ->
+            assertEquals("比例尺位置应更新为 TOP|START", Gravity.TOP or Gravity.START, settings.scaleBarGravity)
+        }
+
+        composeTestRule.onNodeWithTag(TAG_DROPDOWN).performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(getTestString(R.string.zoom_gravity_center)).performClick()
+        composeTestRule.waitForIdle()
+
+        withUiSettings { settings ->
+            assertEquals("比例尺位置应更新为 CENTER", Gravity.CENTER, settings.scaleBarGravity)
+        }
+    }
 
     @Test
-    fun scaleScreen_defaultScaleBarMaxWidth_matchesSdkDefault() {
-        navigateToScaleScreen()
-        Thread.sleep(2000)
-
-        val mapView = findMapView()
-        assert(mapView != null) { "MapView not found" }
-
-        mapView?.getMapAsync {
-            val sv = requireNotNull(it.uiSettings.scaleView) {
-                "ScaleView should exist when scale bar is enabled"
-            }
-            assert(sv.scaleBarMaxWidthPx == ScaleView.SCALE_BAR_MAX_WIDTH_DEFAULT_PX) {
-                "Default max width should be ${ScaleView.SCALE_BAR_MAX_WIDTH_DEFAULT_PX}, got ${sv.scaleBarMaxWidthPx}"
-            }
+    fun defaultScaleBarMaxWidth_matchesSdkDefault() {
+        var maxWidth = -1
+        withUiSettings { settings ->
+            val sv = settings.scaleView
+            maxWidth = sv?.scaleBarMaxWidthPx ?: -1
         }
-        Thread.sleep(500)
+        assertEquals("默认最大宽度应匹配 SDK 默认值", ScaleView.SCALE_BAR_MAX_WIDTH_DEFAULT_PX, maxWidth)
     }
 }

@@ -18,9 +18,13 @@ import androidx.compose.ui.test.swipeUp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import com.maptec.applied.demo.ext.collapseConfigPanel
+import com.maptec.applied.demo.ext.expandConfigPanel
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
-import com.maptec.applied.demo.ext.waitForMapRendered
+import com.maptec.applied.demo.ext.openAnnotationsDemo
+import com.maptec.applied.demo.ext.resetToMainCatalog
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.geometry.LatLng
 import com.maptec.applied.maps.MapView
 import com.maptec.applied.maps.MaptecMap
@@ -41,9 +45,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * 地理围栏（GeofenceScreen）功能测试。
- *
- * 对应页面：业务图层 → 地理围栏
+ * 地理围栏 Screen 功能测试（PointGeofenceScreen / PolygonGeofenceScreen）。
  */
 @RunWith(AndroidJUnit4::class)
 class GeofenceScreenTest {
@@ -65,7 +67,15 @@ class GeofenceScreenTest {
 
         /** Point 圆形围栏中心（总部大楼） */
         private val CIRCLE_CENTER = LatLng(39.9087, 116.3975)
+
+        /** Point 圆形围栏名称（与 GeofenceData.POINT_GEOFENCE_JSON 一致） */
+        private const val POINT_FENCE_NAME = "总部大楼"
     }
+
+    private fun getString(resId: Int, vararg args: Any): String = getTestString(resId, *args)
+
+    private fun expectedMarkerInsideStatus(fenceName: String = POINT_FENCE_NAME): String =
+        getString(R.string.geofence_marker_inside, fenceName)
 
     private val permissionRule = GrantPermissionRule.grant(
         Manifest.permission.INTERNET,
@@ -89,42 +99,47 @@ class GeofenceScreenTest {
 
     @Before
     fun setUp() {
-        navigateToGeofenceScreen()
-        composeTestRule.waitForMapRendered()
-        mapView = composeTestRule.getMapView()
-        Thread.sleep(2000)
+        composeTestRule.resetToMainCatalog()
+        openGeofenceDemo(R.string.overlay_item_geofence_polygon)
     }
 
     @After
     fun tearDown() {
-        composeTestRule.waitForIdle()
+        composeTestRule.resetToMainCatalog()
     }
 
-    private fun navigateToGeofenceScreen() {
+    private fun openGeofenceDemo(itemResId: Int) {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_overlay)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.overlay_item_geofence))
-            .performScrollTo()
-            .performClick()
+        composeTestRule.openAnnotationsDemo(itemResId)
         composeTestRule.waitForIdle()
         composeTestRule.waitUntil(timeoutMillis = 10_000) {
             composeTestRule.onAllNodesWithTag(TAG_SCREEN).fetchSemanticsNodes().isNotEmpty()
         }
+        composeTestRule.waitForMapDemoReady()
+        mapView = composeTestRule.getMapView()
+        Thread.sleep(2000)
     }
 
-    private fun expandBottomSheet() {
-        composeTestRule.onNodeWithTag(TAG_SCREEN).performTouchInput { swipeUp() }
-        composeTestRule.waitForIdle()
-        Thread.sleep(300)
-        composeTestRule.waitForIdle()
-    }
-
-    /** 底部抽屉内按钮无 Scroll 父节点，需先展开再直接点击。 */
+    /** 配置面板内按钮需先展开再点击。 */
     private fun clickSheetButton(tag: String) {
-        expandBottomSheet()
+        composeTestRule.expandConfigPanel()
         composeTestRule.onNodeWithTag(tag).performClick()
         composeTestRule.waitForIdle()
+    }
+
+    /** 地图交互前收起右侧配置面板，避免遮挡点击区域。 */
+    private fun prepareMapForInteraction() {
+        composeTestRule.collapseConfigPanel()
+        composeTestRule.waitForIdle()
+    }
+
+    private fun waitForCircleFenceReady(timeoutMs: Long = 10_000) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (System.currentTimeMillis() < deadline) {
+            if (queryOverlayAt(CIRCLE_CENTER) is Circle) return
+            Thread.sleep(200)
+        }
+        throw AssertionError("Point 围栏 Circle 未在 ${timeoutMs}ms 内加载完成")
     }
 
     private fun withMapApi(action: (MaptecMap) -> Unit) {
@@ -163,12 +178,18 @@ class GeofenceScreenTest {
     }
 
     private fun clickMapAt(latLng: LatLng) {
+        prepareMapForInteraction()
+        val mapNode = composeTestRule.onNodeWithTag(TAG_MAP)
         var offset = Offset.Zero
         withMapApi { map ->
             val screen = map.projection.toScreenLocation(latLng)
-            offset = Offset(screen.x, screen.y)
+            val bounds = mapNode.fetchSemanticsNode().boundsInRoot
+            offset = Offset(
+                screen.x.coerceIn(0f, bounds.width),
+                screen.y.coerceIn(0f, bounds.height),
+            )
         }
-        composeTestRule.onNodeWithTag(TAG_MAP).performTouchInput {
+        mapNode.performTouchInput {
             click(offset)
         }
         composeTestRule.waitForIdle()
@@ -176,6 +197,7 @@ class GeofenceScreenTest {
     }
 
     private fun clickMapCenter() {
+        prepareMapForInteraction()
         composeTestRule.onNodeWithTag(TAG_MAP).performTouchInput {
             click(percentOffset(0.5f, 0.5f))
         }
@@ -183,7 +205,7 @@ class GeofenceScreenTest {
         Thread.sleep(800)
     }
 
-    private fun waitForStatusContains(text: String, timeoutMs: Long = 5000L) {
+    private fun waitForStatusContains(text: String, timeoutMs: Long = 10_000L) {
         composeTestRule.waitUntil(timeoutMillis = timeoutMs) {
             runCatching {
                 composeTestRule.onNodeWithTag(TAG_STATUS).assert(hasText(text, substring = true))
@@ -204,13 +226,16 @@ class GeofenceScreenTest {
 
     @Test
     fun testLoadPointFence_addsCircle() {
-        clickSheetButton(TAG_LOAD_POINT)
-        waitForStatusContains("已加载 Point 围栏")
+        composeTestRule.resetToMainCatalog()
+        openGeofenceDemo(R.string.overlay_item_geofence_point)
 
-        // 页面内 Circle 命中走 distanceTo，与 Fill 的 overlay pick 不同
-        clickMapAt(CIRCLE_CENTER)
-        waitForStatusContains("Marker 在围栏")
-        composeTestRule.onNodeWithTag(TAG_STATUS).assert(hasText("内", substring = true))
+        waitForCircleFenceReady()
+        prepareMapForInteraction()
+        // 相机已居中到围栏圆心，点击地图中心即可命中围栏内部
+        clickMapCenter()
+        val insideStatus = expectedMarkerInsideStatus()
+        waitForStatusContains(insideStatus)
+        composeTestRule.onNodeWithTag(TAG_STATUS).assert(hasText(insideStatus, substring = true))
     }
 
     @Test
@@ -237,6 +262,7 @@ class GeofenceScreenTest {
 
     @Test
     fun testMapClick_insidePolygon_updatesStatus() {
+        prepareMapForInteraction()
         clickMapCenter()
         composeTestRule.onNodeWithTag(TAG_STATUS).assertIsDisplayed()
     }

@@ -1,15 +1,17 @@
 package com.maptec.applied.demo.ui.screens.overlays.circle
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,15 +32,76 @@ import com.maptec.applied.maps.overlay.circle.CircleOptions
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CircleDraggableScreen() {
-    val state = rememberBasicCircleState()
     val context = LocalContext.current
+    val state = remember {
+        BasicCircleState().apply {
+            latLng = "1.4, 103.75"
+            color = "#3F7BF9"
+            radius = "120"
+            opacity = "0.5"
+            strokeColor = "#FFFFFF"
+            strokeWidth = "2"
+            strokeOpacity = "0.8"
+        }
+    }
     var draggable by remember { mutableStateOf(true) }
 
-    CircleScaffold { mapView, _, scaffoldState ->
-        CirclePanelColumn {
-            BasicCircleInputs(state)
+    var lastCircle by remember { mutableStateOf<Circle?>(null) }
+
+    fun attachDragListener(circle: Circle) {
+        circle.addOnDragListener(object : OnOverlayDragListener<Circle> {
+            override fun onAnnotationDragStarted(circle: Circle) {
+                LoggerFactory.getLogger(LOG_MODULE).withTag("CircleScreen").d { "onAnnotationDragStarted" }
+            }
+
+            override fun onAnnotationDrag(circle: Circle) {
+                LoggerFactory.getLogger(LOG_MODULE).withTag("CircleScreen").d { "onAnnotationDrag" }
+            }
+
+            override fun onAnnotationDragFinished(circle: Circle) {
+                LoggerFactory.getLogger(LOG_MODULE).withTag("CircleScreen").d { "onAnnotationDragFinished" }
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.circle_toast_drag_finished, circle.id),
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+        })
+    }
+
+    CircleScaffold(
+        defaultOptions = { state.applyTo(CircleOptions(), draggable = draggable) },
+        onDefaultCircleAdded = { circle, _ ->
+            lastCircle = circle
+            attachDragListener(circle)
+        },
+    ) { mapView, _ ->
+        LaunchedEffect(
+            state.latLng,
+            state.color,
+            state.radius,
+            state.opacity,
+            state.strokeColor,
+            state.strokeWidth,
+            state.strokeOpacity,
+            draggable,
+        ) {
+            lastCircle?.let { circle ->
+                // 位置拖动后样式仍可实时预览；draggable 变化即时应用。
+                applyBasicCircleProps(circle, state)
+                runCatching { circle.setDraggable(draggable) }
+                mapView?.getMapAsync { it.triggerRepaint() }
+            }
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            CircleCommonSliders(state)
+
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(stringResource(R.string.circle_switch_draggable), modifier = Modifier.weight(1f))
@@ -48,32 +111,17 @@ fun CircleDraggableScreen() {
                     modifier = Modifier.testTag("circle_switch_draggable"),
                 )
             }
+
             DrawCircleButton(
                 state = state,
                 mapView = mapView,
-                scaffoldState = scaffoldState,
                 buildOptions = { state.applyTo(CircleOptions(), draggable = draggable) },
                 onCircleAdded = { circle, _ ->
-                    circle.addOnDragListener(object : OnOverlayDragListener<Circle> {
-                        override fun onAnnotationDragStarted(circle: Circle) {
-                            LoggerFactory.getLogger(LOG_MODULE).withTag("CircleScreen").d { "onAnnotationDragStarted" }
-                        }
-
-                        override fun onAnnotationDrag(circle: Circle) {
-                            LoggerFactory.getLogger(LOG_MODULE).withTag("CircleScreen").d { "onAnnotationDrag" }
-                        }
-
-                        override fun onAnnotationDragFinished(circle: Circle) {
-                            LoggerFactory.getLogger(LOG_MODULE).withTag("CircleScreen").d { "onAnnotationDragFinished" }
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.circle_toast_drag_finished, circle.id),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        }
-                    })
+                    lastCircle = circle
+                    attachDragListener(circle)
                 },
             )
+
             Spacer(modifier = Modifier.height(8.dp))
         }
     }

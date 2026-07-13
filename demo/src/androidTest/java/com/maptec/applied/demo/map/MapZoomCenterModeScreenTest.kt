@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.maptec.applied.constants.Constants
@@ -17,6 +18,8 @@ import com.maptec.applied.demo.MainActivity
 import com.maptec.applied.demo.R
 import com.maptec.applied.demo.ext.getMapView
 import com.maptec.applied.demo.ext.getTestString
+import com.maptec.applied.demo.ext.openInteractionDemo
+import com.maptec.applied.demo.ext.waitForMapDemoReady
 import com.maptec.applied.javabase.log.LoggerFactory
 import org.junit.After
 import org.junit.Rule
@@ -24,6 +27,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class MapZoomCenterModeScreenTest {
@@ -55,12 +60,28 @@ class MapZoomCenterModeScreenTest {
 
     private fun navigateToZoomCenterModeScreen() {
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.screen_item_map)).performClick()
+        composeTestRule.openInteractionDemo(R.string.map_item_map_gesture, R.string.map_item_zoom_center_mode)
+        composeTestRule.waitForMapDemoReady()
+        waitForMapZoomCenterModeSynced()
+    }
+
+    private fun waitForMapZoomCenterModeSynced() {
+        val mapView = composeTestRule.getMapView()
+        val latch = CountDownLatch(1)
+        mapView.getMapAsync { latch.countDown() }
+        check(latch.await(10, TimeUnit.SECONDS)) { "Map async init timed out" }
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_map_gesture)).performClick()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(getTestString(R.string.map_item_zoom_center_mode)).performClick()
-        composeTestRule.waitForIdle()
+    }
+
+    private fun waitForRadioSelected(tag: String, timeoutMillis: Long = 5_000) {
+        composeTestRule.waitUntil(timeoutMillis) {
+            try {
+                composeTestRule.onNodeWithTag(tag).assertIsSelected()
+                true
+            } catch (_: AssertionError) {
+                false
+            }
+        }
     }
 
     /**
@@ -75,7 +96,7 @@ class MapZoomCenterModeScreenTest {
         composeTestRule.waitForIdle()
         val mapView = composeTestRule.getMapView()
 
-        composeTestRule.onNodeWithText("缩放中心模式:").assertIsDisplayed()
+        composeTestRule.onNodeWithText(getTestString(R.string.zoom_center_mode_title)).assertIsDisplayed()
 
         composeTestRule.onNodeWithTag("radio_zoom_center_gesture")
             .assertIsDisplayed()
@@ -101,10 +122,10 @@ class MapZoomCenterModeScreenTest {
         val mapView = composeTestRule.getMapView()
 
         // 切换到屏幕中心模式
-        composeTestRule.onNodeWithTag("radio_zoom_center_screen").performClick()
-        composeTestRule.waitForIdle()
-
-        composeTestRule.onNodeWithTag("radio_zoom_center_screen").assertIsSelected()
+        composeTestRule.onNodeWithTag("radio_zoom_center_screen")
+            .performScrollTo()
+            .performClick()
+        waitForRadioSelected("radio_zoom_center_screen")
         composeTestRule.onNodeWithTag("radio_zoom_center_gesture").assertIsNotSelected()
 
         mapView.getMapAsync { map ->
@@ -114,10 +135,10 @@ class MapZoomCenterModeScreenTest {
         }
 
         // 切换回手势焦点模式
-        composeTestRule.onNodeWithTag("radio_zoom_center_gesture").performClick()
-        composeTestRule.waitForIdle()
-
-        composeTestRule.onNodeWithTag("radio_zoom_center_gesture").assertIsSelected()
+        composeTestRule.onNodeWithTag("radio_zoom_center_gesture")
+            .performScrollTo()
+            .performClick()
+        waitForRadioSelected("radio_zoom_center_gesture")
         composeTestRule.onNodeWithTag("radio_zoom_center_screen").assertIsNotSelected()
 
         mapView.getMapAsync { map ->

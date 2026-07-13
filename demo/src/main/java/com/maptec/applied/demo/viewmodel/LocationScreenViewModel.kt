@@ -12,6 +12,7 @@ import com.maptec.applied.gpsprovider.LocationEngineCallback
 import com.maptec.applied.gpsprovider.LocationEngineDefault
 import com.maptec.applied.gpsprovider.LocationEngineRequest
 import com.maptec.applied.gpsprovider.LocationEngineResult
+import com.maptec.applied.demo.ui.screens.interaction.controls.MockGpsTrackPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,7 +24,8 @@ import java.lang.ref.WeakReference
  */
 data class LocationScreenUiState(
     val permissionGranted: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val mockPlaybackActive: Boolean = false
 )
 
 /**
@@ -38,6 +40,7 @@ class LocationScreenViewModel(
     val uiState: StateFlow<LocationScreenUiState> = _uiState.asStateFlow()
 
     private var locationComponentRef: WeakReference<LocationComponent>? = null
+    private var mockGpsTrackPlayer: MockGpsTrackPlayer? = null
 
     @get:VisibleForTesting
     internal val currentLocationEngineCallback: CurrentLocationEngineCallback by lazy {
@@ -67,8 +70,9 @@ class LocationScreenViewModel(
     private fun updateContinuousLocationSubscription() {
         val hasPermission = _uiState.value.permissionGranted
         val hasComponent = locationComponentRef?.get() != null
+        val mockActive = _uiState.value.mockPlaybackActive
 
-        if (hasPermission && hasComponent) {
+        if (hasPermission && hasComponent && !mockActive) {
             locationEngine.requestLocationUpdates(
                 locationEngineRequest,
                 currentLocationEngineCallback,
@@ -79,7 +83,39 @@ class LocationScreenViewModel(
         }
     }
 
+    fun toggleMockPlayback() {
+        if (_uiState.value.mockPlaybackActive) {
+            stopMockPlayback()
+        } else {
+            startMockPlayback()
+        }
+    }
+
+    fun startMockPlayback() {
+        val component = locationComponentRef?.get() ?: return
+        mockGpsTrackPlayer?.stop(notify = false)
+        locationEngine.removeLocationUpdates(currentLocationEngineCallback)
+        mockGpsTrackPlayer = MockGpsTrackPlayer(
+            context = appContext,
+            locationComponent = component,
+            onPlaybackStopped = {
+                mockGpsTrackPlayer = null
+                _uiState.update { it.copy(mockPlaybackActive = false) }
+                updateContinuousLocationSubscription()
+            }
+        ).also { it.start() }
+        _uiState.update { it.copy(mockPlaybackActive = true) }
+    }
+
+    fun stopMockPlayback() {
+        mockGpsTrackPlayer?.stop()
+        mockGpsTrackPlayer = null
+        _uiState.update { it.copy(mockPlaybackActive = false) }
+        updateContinuousLocationSubscription()
+    }
+
     override fun onCleared() {
+        stopMockPlayback()
         locationEngine.removeLocationUpdates(currentLocationEngineCallback)
         locationComponentRef = null
         super.onCleared()

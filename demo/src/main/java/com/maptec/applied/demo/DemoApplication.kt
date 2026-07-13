@@ -7,6 +7,7 @@ import android.os.Debug
 import com.maptec.applied.javabase.log.LoggerFactory
 import java.io.File
 import com.maptec.applied.MapSDK
+import com.maptec.applied.demo.BuildConfig
 import com.maptec.applied.javabase.log.LogLevel
 
 
@@ -19,9 +20,11 @@ class DemoApplication: Application() {
     override fun onCreate() {
         super.onCreate()
 
-        LoggerFactory.initialize(this, LogLevel.VERBOSE)
+        if (BuildConfig.USE_LOG) {
+            LoggerFactory.initialize(this, LogLevel.VERBOSE)
+        }
 
-        MapSDK.getInstance(applicationContext,null).initialize(null)
+        MapSDK.getInstance(applicationContext,null).initialize()
 
      //   initRaphael(applicationContext)
     }

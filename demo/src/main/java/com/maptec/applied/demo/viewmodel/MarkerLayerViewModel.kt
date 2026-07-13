@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color as AndroidColor
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -17,7 +19,7 @@ import com.maptec.applied.maps.overlay.marker.Marker
 import com.maptec.applied.maps.overlay.marker.MarkerAnchorType
 import com.maptec.applied.maps.overlay.marker.MarkerOptions
 import com.maptec.applied.maps.overlay.marker.OnMarkerDragListener
-import com.maptec.applied.style.layers.Property
+import com.maptec.applied.style.Property
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -97,6 +99,8 @@ class MarkerLayerViewModel : ViewModel() {
     /** 类型预置图缓存 —— addMarker 时通过 MarkerOptions.withIcon 一次塞进 SDK image registry。 */
     private val typePresetBitmaps = mutableMapOf<String, Pair<Bitmap, Boolean>>()
     private var zoomListener: MaptecMap.OnCameraMoveListener? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var repaintScheduled = false
 
     companion object {
         private const val TAG = "MarkerLayerVM"
@@ -124,18 +128,70 @@ class MarkerLayerViewModel : ViewModel() {
 
     // ========== 公共参数 Setter ==========
     fun setDefaultLatLng(value: String) { _defaultLatLng.value = value }
-    fun setIconOpacity(value: Float) { _iconOpacity.value = value.coerceIn(0f, 1f) }
+
+    /** 拖动滑块时仅更新 Marker 外观，不写 StateFlow，避免整页重组。 */
+    fun previewIconOpacity(value: Float) {
+        applyIconOpacityToMarkers(value.coerceIn(0f, 1f))
+        scheduleRepaint()
+    }
+
+    fun setIconOpacity(value: Float) {
+        val opacity = value.coerceIn(0f, 1f)
+        _iconOpacity.value = opacity
+        applyIconOpacityToMarkers(opacity)
+        scheduleRepaint()
+    }
+
     fun setIconAnchor(value: String) { _iconAnchor.value = value.ifBlank { Property.ICON_ANCHOR_BOTTOM } }
-    fun setIconSize(value: Float) { _iconSize.value = value.coerceIn(0.1f, 5f) }
+
+    fun previewIconSize(value: Float) {
+        applyIconSizeLive(iconSizeOverride = value.coerceIn(0.1f, 5f))
+    }
+
+    fun setIconSize(value: Float) {
+        _iconSize.value = value.coerceIn(0.1f, 5f)
+        applyIconSizeLive()
+    }
 
     fun setIconScaleWithZoom(enabled: Boolean) {
         _iconScaleWithZoom.value = enabled
-        applyIconSizeForCurrentZoom()
+        applyIconSizeLive()
     }
 
-    fun setMinZoom(value: Int)  { _minZoom.value = value;  applyIconSizeForCurrentZoom() }
-    fun setMaxZoom(value: Int)  { _maxZoom.value = value;  applyIconSizeForCurrentZoom() }
-    fun setMinScale(value: Float) { _minScale.value = value; applyIconSizeForCurrentZoom() }
+    fun previewMinZoom(value: Int) { applyIconSizeLive(minZoomOverride = value) }
+    fun setMinZoom(value: Int) {
+        _minZoom.value = value
+        applyIconSizeLive()
+    }
+
+    fun previewMaxZoom(value: Int) { applyIconSizeLive(maxZoomOverride = value) }
+    fun setMaxZoom(value: Int) {
+        _maxZoom.value = value
+        applyIconSizeLive()
+    }
+
+    fun previewMinScale(value: Float) {
+        applyIconSizeLive(minScaleOverride = value.coerceIn(0.1f, 5f))
+    }
+
+    fun setMinScale(value: Float) {
+        _minScale.value = value.coerceIn(0.1f, 5f)
+        applyIconSizeLive()
+    }
+
+    private fun applyIconOpacityToMarkers(opacity: Float) {
+        for (m in _markers.value) m.setIconOpacity(opacity)
+    }
+
+    /** 合并同一帧内的多次 triggerRepaint，减轻滑块拖动卡顿。 */
+    private fun scheduleRepaint() {
+        if (repaintScheduled) return
+        repaintScheduled = true
+        mainHandler.post {
+            repaintScheduled = false
+            mapLibreMapRef?.triggerRepaint()
+        }
+    }
 
     fun setIconUrl(value: String) { _iconUrl.value = value }
     fun setIconUrlId(value: String) { _iconUrlId.value = value.ifBlank { "url_icon" } }
@@ -300,6 +356,7 @@ class MarkerLayerViewModel : ViewModel() {
         cachePresetIcon(R.drawable.yellow_dot, YELLOW_DOT, sdf = false)
 
         // zoom 联动：仍然业务侧批量重设 iconSize（后续应下沉到引擎）
+        zoomListener?.let { mapLibreMapRef?.removeOnCameraMoveListener(it) }
         val l = MaptecMap.OnCameraMoveListener { applyIconSizeForCurrentZoom() }
         mapLibreMap.addOnCameraMoveListener(l)
         zoomListener = l
@@ -313,22 +370,46 @@ class MarkerLayerViewModel : ViewModel() {
         _isDragging.value = false
     }
 
-    private fun sizeForZoom(zoom: Double): Float {
-        val minZ = _minZoom.value.toDouble()
-        val maxZ = _maxZoom.value.toDouble().coerceAtLeast(minZ + 0.0001)
-        val minS = _minScale.value
-        val maxS = _iconSize.value
+    private fun sizeForZoom(
+        zoom: Double,
+        minScale: Float? = null,
+        minZoom: Int? = null,
+        maxZoom: Int? = null,
+        iconSize: Float? = null,
+    ): Float {
+        val minZ = (minZoom ?: _minZoom.value).toDouble()
+        val maxZ = (maxZoom ?: _maxZoom.value).toDouble().coerceAtLeast(minZ + 0.0001)
+        val minS = minScale ?: _minScale.value
+        val maxS = iconSize ?: _iconSize.value
         val t = ((zoom - minZ) / (maxZ - minZ)).coerceIn(0.0, 1.0).toFloat()
         return minS + (maxS - minS) * t
     }
 
-    private fun applyIconSizeForCurrentZoom() {
+    private fun applyIconSizeLive(
+        iconSizeOverride: Float? = null,
+        minScaleOverride: Float? = null,
+        minZoomOverride: Int? = null,
+        maxZoomOverride: Int? = null,
+    ) {
         val map = mapLibreMapRef ?: return
         val markers = _markers.value
         if (markers.isEmpty()) return
-        val size = if (_iconScaleWithZoom.value) sizeForZoom(map.cameraPosition.zoom) else _iconSize.value
+        val size = if (_iconScaleWithZoom.value) {
+            sizeForZoom(
+                zoom = map.cameraPosition.zoom,
+                minScale = minScaleOverride,
+                minZoom = minZoomOverride,
+                maxZoom = maxZoomOverride,
+                iconSize = iconSizeOverride,
+            )
+        } else {
+            iconSizeOverride ?: _iconSize.value
+        }
         for (m in markers) m.iconSize = size
+        scheduleRepaint()
     }
+
+    private fun applyIconSizeForCurrentZoom() = applyIconSizeLive()
 
     fun clearToastMessage() { _toastMessage.value = null }
 
