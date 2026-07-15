@@ -1,7 +1,12 @@
 package com.maptec.applied.demo.ui.screens.overlays.polyline
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.widget.Toast
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
 import com.maptec.applied.demo.LOG_MODULE
+import com.maptec.applied.demo.R
 import com.maptec.applied.javabase.log.LoggerFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -43,6 +48,11 @@ import com.maptec.applied.maps.overlay.OnOverlayDragListener
 import com.maptec.applied.maps.overlay.OnOverlayLongClickListener
 import com.maptec.applied.maps.overlay.line.Line
 import com.maptec.applied.maps.overlay.line.LineOptions
+import com.maptec.applied.utils.BitmapUtils
+
+private const val ROUTELINE_PATTERN_CLASSIC = "line_classic"
+private const val ROUTELINE_PATTERN_CHEVRON = "line_chevron"
+private const val ROUTELINE_PATTERN_TRIANGLE = "line_triangle"
 
 private data class RoutelineDropdownOption(val value: String, val label: String)
 
@@ -88,28 +98,17 @@ fun RoutelineBottomDetailPanel(
     var strokeWeight by remember { mutableStateOf("6") }
     var strokeOpacity by remember { mutableStateOf("1.0") }
 
-    // 鱼骨线（沿线方向箭头）参数
+    // 鱼骨线：通过 linePattern + maskColor 实现（原 DirectionalArrows API 已移除）
     var fishboneEnabled by remember { mutableStateOf(true) }
-    var fishboneType by remember { mutableStateOf(LineOptions.DIRECTIONAL_ARROWS_TYPE_CLASSIC) }
-    var fishboneSpacing by remember { mutableStateOf("60") }
-    var fishboneSizeW by remember { mutableStateOf("12") }
-    var fishboneSizeH by remember { mutableStateOf("20") }
+    var fishbonePattern by remember { mutableStateOf(ROUTELINE_PATTERN_CLASSIC) }
     var fishboneColor by remember { mutableStateOf("#FFFFFF") }
-    var fishboneRotate by remember { mutableStateOf(LineOptions.DIRECTIONAL_ARROWS_ROTATE_ALONG) }
-    var fishboneScaleWithZoom by remember { mutableStateOf(false) }
 
     var fishboneTypeMenuExpanded by remember { mutableStateOf(false) }
-    var fishboneRotateMenuExpanded by remember { mutableStateOf(false) }
 
     val fishboneTypeOptions = listOf(
-        RoutelineDropdownOption(LineOptions.DIRECTIONAL_ARROWS_TYPE_CLASSIC, "经典 (classic)"),
-        RoutelineDropdownOption(LineOptions.DIRECTIONAL_ARROWS_TYPE_CHEVRON, "V型 (chevron)"),
-        RoutelineDropdownOption(LineOptions.DIRECTIONAL_ARROWS_TYPE_TRIANGLE, "三角形 (triangle)")
-    )
-
-    val fishboneRotateOptions = listOf(
-        RoutelineDropdownOption(LineOptions.DIRECTIONAL_ARROWS_ROTATE_ALONG, "沿线方向 (along)"),
-        RoutelineDropdownOption(LineOptions.DIRECTIONAL_ARROWS_ROTATE_FIXED, "固定方向 (fixed)")
+        RoutelineDropdownOption(ROUTELINE_PATTERN_CLASSIC, "经典 (classic)"),
+        RoutelineDropdownOption(ROUTELINE_PATTERN_CHEVRON, "V型 (chevron)"),
+        RoutelineDropdownOption(ROUTELINE_PATTERN_TRIANGLE, "三角形 (triangle)")
     )
 
     Column(
@@ -155,17 +154,16 @@ fun RoutelineBottomDetailPanel(
         }
 
         if (fishboneEnabled) {
-            // 样式
             ExposedDropdownMenuBox(
                 expanded = fishboneTypeMenuExpanded,
                 onExpandedChange = { fishboneTypeMenuExpanded = it },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
             ) {
                 OutlinedTextField(
-                    value = fishboneTypeOptions.find { it.value == fishboneType }?.label ?: fishboneType,
+                    value = fishboneTypeOptions.find { it.value == fishbonePattern }?.label ?: fishbonePattern,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("样式") },
+                    label = { Text("箭头样式") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fishboneTypeMenuExpanded) },
                     modifier = Modifier.fillMaxWidth().menuAnchor()
                 )
@@ -177,7 +175,7 @@ fun RoutelineBottomDetailPanel(
                         DropdownMenuItem(
                             text = { Text(option.label) },
                             onClick = {
-                                fishboneType = option.value
+                                fishbonePattern = option.value
                                 fishboneTypeMenuExpanded = false
                             }
                         )
@@ -185,86 +183,12 @@ fun RoutelineBottomDetailPanel(
                 }
             }
 
-            // 旋转模式
-            ExposedDropdownMenuBox(
-                expanded = fishboneRotateMenuExpanded,
-                onExpandedChange = { fishboneRotateMenuExpanded = it },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
-            ) {
-                OutlinedTextField(
-                    value = fishboneRotateOptions.find { it.value == fishboneRotate }?.label ?: fishboneRotate,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("旋转模式") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fishboneRotateMenuExpanded) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = fishboneRotateMenuExpanded,
-                    onDismissRequest = { fishboneRotateMenuExpanded = false }
-                ) {
-                    fishboneRotateOptions.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option.label) },
-                            onClick = {
-                                fishboneRotate = option.value
-                                fishboneRotateMenuExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // 间距 / 颜色
-            Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
-                OutlinedTextField(
-                    value = fishboneSpacing,
-                    onValueChange = { fishboneSpacing = it },
-                    label = { Text("间距 (20~500)") },
-                    modifier = Modifier.weight(1f).padding(end = 4.dp)
-                )
-                OutlinedTextField(
-                    value = fishboneColor,
-                    onValueChange = { fishboneColor = it },
-                    label = { Text("颜色") },
-                    modifier = Modifier.weight(1f).padding(start = 4.dp)
-                )
-            }
-
-            // 尺寸 宽 / 高
-            Row(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
-                OutlinedTextField(
-                    value = fishboneSizeW,
-                    onValueChange = { fishboneSizeW = it },
-                    label = { Text("宽") },
-                    modifier = Modifier.weight(1f).padding(end = 4.dp)
-                )
-                OutlinedTextField(
-                    value = fishboneSizeH,
-                    onValueChange = { fishboneSizeH = it },
-                    label = { Text("高") },
-                    modifier = Modifier.weight(1f).padding(start = 4.dp)
-                )
-            }
-
-            // 缩放时行为：true = 大小随地图缩放，false = 大小固定
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            OutlinedTextField(
+                value = fishboneColor,
+                onValueChange = { fishboneColor = it },
+                label = { Text("箭头颜色 (mask)") },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("缩放时行为")
-                    Text(
-                        if (fishboneScaleWithZoom) "大小随地图缩放" else "大小固定",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-                }
-                Switch(
-                    checked = fishboneScaleWithZoom,
-                    onCheckedChange = { fishboneScaleWithZoom = it }
-                )
-            }
+            )
         }
 
         Button(
@@ -281,18 +205,14 @@ fun RoutelineBottomDetailPanel(
                         .withStrokeColor(strokeColor)
                         .withStrokeWeight(strokeWeight.toFloatOrNull() ?: 6f)
                         .withStrokeOpacity(strokeOpacity.toFloatOrNull() ?: 1f)
-                        .withDirectionalArrowsEnabled(fishboneEnabled)
-                        .withDirectionalArrowsType(fishboneType)
-                        .withDirectionalArrowsColor(fishboneColor)
-                        .withDirectionalArrowsSpacing(fishboneSpacing.toFloatOrNull() ?: 60f)
-                        .withDirectionalArrowsSize(
-                            floatArrayOf(
-                                fishboneSizeW.toFloatOrNull() ?: 12f,
-                                fishboneSizeH.toFloatOrNull() ?: 20f
-                            )
-                        )
-                        .withDirectionalArrowsRotate(fishboneRotate)
-                        .withDirectionalArrowsScaleWithZoom(fishboneScaleWithZoom)
+                        .apply {
+                            if (fishboneEnabled) {
+                                routelinePatternBitmap(mapView.context, fishbonePattern)?.let { bmp ->
+                                    withLinePattern(bmp, fishbonePattern)
+                                }
+                                withMaskColor(fishboneColor.trim())
+                            }
+                        }
 
                     val line = engine.addPolyline(options)
                     line.addOnDragListener(object : OnOverlayDragListener<Line> {
@@ -327,6 +247,17 @@ fun RoutelineBottomDetailPanel(
         }
     }
 }
+
+private fun routelinePatternBitmap(context: Context, imageId: String): Bitmap? =
+    when (imageId) {
+        ROUTELINE_PATTERN_CLASSIC -> loadRoutelineDrawableBitmap(context, R.drawable.line_classic)
+        ROUTELINE_PATTERN_CHEVRON -> loadRoutelineDrawableBitmap(context, R.drawable.line_chevron)
+        ROUTELINE_PATTERN_TRIANGLE -> loadRoutelineDrawableBitmap(context, R.drawable.line_triangle)
+        else -> null
+    }
+
+private fun loadRoutelineDrawableBitmap(context: Context, @DrawableRes res: Int): Bitmap? =
+    ContextCompat.getDrawable(context, res)?.let(BitmapUtils::getBitmapFromDrawable)
 
 private fun parseRoutelineLatLngs(input: String): List<LatLng> {
     return try {

@@ -169,10 +169,6 @@ internal fun LineBottomDetailPanel(
 
     var dashArrayStr by remember { mutableStateOf("") }
 
-    var flowAnimation by remember { mutableStateOf(false) }
-    var flowSpeed by remember { mutableStateOf("1.0") }
-    var flowColor by remember { mutableStateOf("#FFFFFF") }
-
     var glowEffect by remember(mode) { mutableStateOf(mode == LineMode.GLOW) }
     var glowColor by remember { mutableStateOf("#00A63E") }
     var glowRadius by remember { mutableStateOf("10") }
@@ -254,9 +250,9 @@ internal fun LineBottomDetailPanel(
         val wantStartCustom = startCap == LINE_CAP_CUSTOM
         val wantEndCustom = endCap == LINE_CAP_CUSTOM
         return (wantStartArrow == (arrowStartMarker != null)) &&
-            (wantEndArrow == (arrowEndMarker != null)) &&
-            (wantStartCustom == (customStartMarker != null)) &&
-            (wantEndCustom == (customEndMarker != null))
+                (wantEndArrow == (arrowEndMarker != null)) &&
+                (wantStartCustom == (customStartMarker != null)) &&
+                (wantEndCustom == (customEndMarker != null))
     }
 
     /** 滑块拖动时原地更新线帽 Marker 的颜色/透明度/尺寸。 */
@@ -360,7 +356,7 @@ internal fun LineBottomDetailPanel(
             return@LaunchedEffect
         }
         val hasCapMarker = startCap == LINE_CAP_ARROW || endCap == LINE_CAP_ARROW ||
-            startCap == LINE_CAP_CUSTOM || endCap == LINE_CAP_CUSTOM
+                startCap == LINE_CAP_CUSTOM || endCap == LINE_CAP_CUSTOM
         if (!hasCapMarker) {
             clearCapMarkers()
             return@LaunchedEffect
@@ -657,9 +653,6 @@ internal fun LineBottomDetailPanel(
                         .withGlowEffect(glowEffect)
                         .withGlowColor(glowColor)
                         .withGlowRadius(glowRadius.toFloat())
-                        .withFlowAnimation(flowAnimation)
-                        .withFlowColor(flowColor)
-                        .withFlowSpeed(flowSpeed.toFloat())
                         .withLineCapStart(effectiveStartCap)
                         .withLineCapEnd(effectiveEndCap)
                         .apply {
