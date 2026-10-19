@@ -1,0 +1,26 @@
+# mapSdkDemo → MapProject Demo 准入（PR 合入 main 前门禁，pull_request.target 触发）
+# sync:true：须等 MapProject api_trigger_submodule_pr 成功后本流水线才通过
+# main 保护分支请勾选「需要通过状态检查」，并指定「MapProject PR 编译校验」
+
+.trigger_mapproject_pr: &trigger_mapproject_pr
+  name: MapProject PR 编译校验
+  stages:
+    - name: 同步触发并等待 MapProject 构建
+      type: cnb:trigger
+      options:
+        token: ${CNB_TOKEN}
+        slug: maptechbj/applied/sdk/MapProject
+        branch: ${CNB_BRANCH}
+        event: api_trigger_submodule_pr
+        sync: true
+        continueOnBuildError: false
+        env:
+          SUBMODULE_NAME: mapSdkDemo
+          SUBMODULE_SLUG: ${CNB_REPO_SLUG}
+          SUBMODULE_PR_ID: ${CNB_PULL_REQUEST_ID}
+          SUBMODULE_PR_BRANCH: ${CNB_PULL_REQUEST_BRANCH}
+          SUBMODULE_PR_SHA: ${CNB_PULL_REQUEST_SHA}
+
+main:
+  pull_request.target:
+    - <<: *trigger_mapproject_pr

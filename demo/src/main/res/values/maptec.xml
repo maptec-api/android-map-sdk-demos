@@ -1,0 +1,4 @@
+<resources>
+    <string name="maptec_apiKey">"请输入您的apiKey"</string>
+    <string name="signature_sha1">"请输入您的signature"</string>
+</resources>

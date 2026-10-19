@@ -1,0 +1,29 @@
+.idea/
+.gradle/
+.kotlin/
+/build
+/arm64-v8a
+*.a
+.trae/
+docs/superpowers/
+
+# Local configuration
+local.properties
+
+# IDE files
+*.iml
+
+# Signing files
+#*.jks
+#*.keystore
+
+# Output files
+*.apk
+*.aar
+
+# macOS
+.DS_Store
+
+# NDK build
+.cxx/
+.externalNativeBuild/

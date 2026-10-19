@@ -1,0 +1,1805 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-1",
+        "name": "Marina Bay POI 1",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8519,
+          1.3023
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-2",
+        "name": "Marina Bay POI 2",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.867942,
+          1.297759
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-3",
+        "name": "Marina Bay POI 3",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.866453,
+          1.287574
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-4",
+        "name": "Marina Bay POI 4",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.849061,
+          1.279451
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-5",
+        "name": "Marina Bay POI 5",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.834771,
+          1.279539
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-6",
+        "name": "Marina Bay POI 6",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8392,
+          1.28777
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-7",
+        "name": "Marina Bay POI 7",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.857508,
+          1.297916
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-8",
+        "name": "Marina Bay POI 8",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.869687,
+          1.302298
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-9",
+        "name": "Marina Bay POI 9",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.862429,
+          1.2976
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-10",
+        "name": "Marina Bay POI 10",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.843664,
+          1.287377
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-11",
+        "name": "Marina Bay POI 11",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8339,
+          1.279366
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-12",
+        "name": "Marina Bay POI 12",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.843806,
+          1.27963
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-13",
+        "name": "Marina Bay POI 13",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.862557,
+          1.287968
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-14",
+        "name": "Marina Bay POI 14",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.869662,
+          1.298071
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-15",
+        "name": "Marina Bay POI 15",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.857356,
+          1.302293
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-16",
+        "name": "Marina Bay POI 16",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.839088,
+          1.297439
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-17",
+        "name": "Marina Bay POI 17",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.834821,
+          1.287182
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-18",
+        "name": "Marina Bay POI 18",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.849218,
+          1.279285
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-19",
+        "name": "Marina Bay POI 19",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.866546,
+          1.279724
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-20",
+        "name": "Marina Bay POI 20",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.867869,
+          1.288166
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-21",
+        "name": "Marina Bay POI 21",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.851741,
+          1.298224
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-22",
+        "name": "Marina Bay POI 22",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.835787,
+          1.302285
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-23",
+        "name": "Marina Bay POI 23",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.837441,
+          1.297276
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-24",
+        "name": "Marina Bay POI 24",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.854897,
+          1.286988
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-25",
+        "name": "Marina Bay POI 25",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.869077,
+          1.279206
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-26",
+        "name": "Marina Bay POI 26",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.864486,
+          1.27982
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-27",
+        "name": "Marina Bay POI 27",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.846141,
+          1.288365
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-28",
+        "name": "Marina Bay POI 28",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.834089,
+          1.298374
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-29",
+        "name": "Marina Bay POI 29",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.841501,
+          1.302273
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "1-30",
+        "name": "Marina Bay POI 30",
+        "area": "Marina Bay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.860277,
+          1.297111
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-1",
+        "name": "Orchard POI 1",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.846946,
+          1.311284
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-2",
+        "name": "Orchard POI 2",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.847338,
+          1.300921
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-3",
+        "name": "Orchard POI 3",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.830749,
+          1.293493
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-4",
+        "name": "Orchard POI 4",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.815309,
+          1.294623
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-5",
+        "name": "Orchard POI 5",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.81789,
+          1.303454
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-6",
+        "name": "Orchard POI 6",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.835672,
+          1.313304
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-7",
+        "name": "Orchard POI 7",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.849223,
+          1.316718
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-8",
+        "name": "Orchard POI 8",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.843733,
+          1.311113
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-9",
+        "name": "Orchard POI 9",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.825203,
+          1.30073
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-10",
+        "name": "Orchard POI 10",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.813882,
+          1.293427
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-11",
+        "name": "Orchard POI 11",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.822142,
+          1.294731
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-12",
+        "name": "Orchard POI 12",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.840956,
+          1.303655
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-13",
+        "name": "Orchard POI 13",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.849764,
+          1.313445
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-14",
+        "name": "Orchard POI 14",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.838941,
+          1.316693
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-15",
+        "name": "Orchard POI 15",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.820314,
+          1.31094
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-16",
+        "name": "Orchard POI 16",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.814239,
+          1.300541
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-17",
+        "name": "Orchard POI 17",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.827354,
+          1.293365
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-18",
+        "name": "Orchard POI 18",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.845328,
+          1.294842
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-19",
+        "name": "Orchard POI 19",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.848518,
+          1.303856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-20",
+        "name": "Orchard POI 20",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.833438,
+          1.313584
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-21",
+        "name": "Orchard POI 21",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.816568,
+          1.316664
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-22",
+        "name": "Orchard POI 22",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.816343,
+          1.310766
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-23",
+        "name": "Orchard POI 23",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.83301,
+          1.300353
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-24",
+        "name": "Orchard POI 24",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.848354,
+          1.293305
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-25",
+        "name": "Orchard POI 25",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.845608,
+          1.294956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-26",
+        "name": "Orchard POI 26",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.827772,
+          1.304057
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-27",
+        "name": "Orchard POI 27",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.814338,
+          1.31372
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-28",
+        "name": "Orchard POI 28",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.819986,
+          1.316633
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-29",
+        "name": "Orchard POI 29",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.838545,
+          1.31059
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "2-30",
+        "name": "Orchard POI 30",
+        "area": "Orchard"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.849732,
+          1.300166
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-1",
+        "name": "Kent Ridge POI 1",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.792767,
+          1.291606
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-2",
+        "name": "Kent Ridge POI 2",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.777148,
+          1.284949
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-3",
+        "name": "Kent Ridge POI 3",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.760712,
+          1.287108
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-4",
+        "name": "Kent Ridge POI 4",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.761419,
+          1.296451
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-5",
+        "name": "Kent Ridge POI 5",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.778498,
+          1.305907
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-6",
+        "name": "Kent Ridge POI 6",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.793284,
+          1.308319
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-7",
+        "name": "Kent Ridge POI 7",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.789619,
+          1.301863
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-8",
+        "name": "Kent Ridge POI 8",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.771508,
+          1.291423
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-9",
+        "name": "Kent Ridge POI 9",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.758743,
+          1.284902
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-10",
+        "name": "Kent Ridge POI 10",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.765274,
+          1.287233
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-11",
+        "name": "Kent Ridge POI 11",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.783963,
+          1.296653
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-12",
+        "name": "Kent Ridge POI 12",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.794388,
+          1.306033
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-13",
+        "name": "Kent Ridge POI 13",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.785155,
+          1.308274
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-14",
+        "name": "Kent Ridge POI 14",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.766355,
+          1.30168
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-15",
+        "name": "Kent Ridge POI 15",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.758532,
+          1.291242
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-16",
+        "name": "Kent Ridge POI 16",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.770235,
+          1.284859
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-17",
+        "name": "Kent Ridge POI 17",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.788675,
+          1.287361
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-18",
+        "name": "Kent Ridge POI 18",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.793701,
+          1.296855
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-19",
+        "name": "Kent Ridge POI 19",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.77982,
+          1.306156
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-20",
+        "name": "Kent Ridge POI 20",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.762202,
+          1.308226
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-21",
+        "name": "Kent Ridge POI 21",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.7601,
+          1.301497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-22",
+        "name": "Kent Ridge POI 22",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.775811,
+          1.291062
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-23",
+        "name": "Kent Ridge POI 23",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.792166,
+          1.284819
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-24",
+        "name": "Kent Ridge POI 24",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.791292,
+          1.287491
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-25",
+        "name": "Kent Ridge POI 25",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.774144,
+          1.297057
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-26",
+        "name": "Kent Ridge POI 26",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.759461,
+          1.306277
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-27",
+        "name": "Kent Ridge POI 27",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.76329,
+          1.308174
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-28",
+        "name": "Kent Ridge POI 28",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.781445,
+          1.301312
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-29",
+        "name": "Kent Ridge POI 29",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.794087,
+          1.290884
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "3-30",
+        "name": "Kent Ridge POI 30",
+        "area": "Kent Ridge"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.787401,
+          1.284782
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-1",
+        "name": "Changi POI 1",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.99194,
+          1.35252
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-2",
+        "name": "Changi POI 2",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.974671,
+          1.355689
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-3",
+        "name": "Changi POI 3",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.973498,
+          1.36545
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-4",
+        "name": "Changi POI 4",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.989703,
+          1.374417
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-5",
+        "name": "Changi POI 5",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.005577,
+          1.375803
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-6",
+        "name": "Changi POI 6",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.003773,
+          1.36856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-7",
+        "name": "Changi POI 7",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.986262,
+          1.358169
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-8",
+        "name": "Changi POI 8",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.972181,
+          1.352493
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-9",
+        "name": "Changi POI 9",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.976917,
+          1.355829
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-10",
+        "name": "Changi POI 10",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.995295,
+          1.365651
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-11",
+        "name": "Changi POI 11",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.007231,
+          1.374526
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-12",
+        "name": "Changi POI 12",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.999682,
+          1.375738
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-13",
+        "name": "Changi POI 13",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.980896,
+          1.36837
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-14",
+        "name": "Changi POI 14",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.971404,
+          1.357997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-15",
+        "name": "Changi POI 15",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.981578,
+          1.35247
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-16",
+        "name": "Changi POI 16",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.0003,
+          1.355971
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-17",
+        "name": "Changi POI 17",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.00711,
+          1.365851
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-18",
+        "name": "Changi POI 18",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.994567,
+          1.374633
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-19",
+        "name": "Changi POI 19",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.976377,
+          1.375671
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-20",
+        "name": "Changi POI 20",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.972419,
+          1.368179
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-21",
+        "name": "Changi POI 21",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.987018,
+          1.357827
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-22",
+        "name": "Changi POI 22",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.00422,
+          1.35245
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-23",
+        "name": "Changi POI 23",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.005227,
+          1.356116
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-24",
+        "name": "Changi POI 24",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.988938,
+          1.366051
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-25",
+        "name": "Changi POI 25",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.973154,
+          1.374737
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-26",
+        "name": "Changi POI 26",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.975124,
+          1.3756
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-27",
+        "name": "Changi POI 27",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.992695,
+          1.367987
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-28",
+        "name": "Changi POI 28",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.006665,
+          1.357659
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-29",
+        "name": "Changi POI 29",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          104.001768,
+          1.352433
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "4-30",
+        "name": "Changi POI 30",
+        "area": "Changi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.983355,
+          1.356263
+        ]
+      }
+    }
+  ]
+}

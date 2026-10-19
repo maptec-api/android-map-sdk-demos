@@ -1,0 +1,434 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Marina Bay 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.851959,
+          1.29027
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Marina Bay 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8548,
+          1.2879
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Marina Bay 3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8583,
+          1.2839
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Marina Bay 4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8491,
+          1.2846
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Marina Bay 5"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8576,
+          1.2921
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "CBD 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.851,
+          1.2796
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "CBD 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8468,
+          1.2819
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "CBD 3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8449,
+          1.2765
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "CBD 4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8537,
+          1.2769
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Orchard 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8318,
+          1.3048
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Orchard 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8352,
+          1.3029
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Orchard 3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.829,
+          1.3072
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Orchard 4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8384,
+          1.3006
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bugis"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8554,
+          1.3008
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Little India"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8496,
+          1.3069
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lavender"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8626,
+          1.3073
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Changi Airport 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.9915,
+          1.3644
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Changi Airport 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.9829,
+          1.3521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tampines"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.945,
+          1.3521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pasir Ris"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.9493,
+          1.3721
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bedok"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.9301,
+          1.3236
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jurong East 1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.742,
+          1.3331
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jurong East 2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.7468,
+          1.3404
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jurong West"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.7068,
+          1.3396
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Boon Lay"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.7059,
+          1.3387
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Woodlands"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.7861,
+          1.436
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Yishun"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8354,
+          1.4294
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sengkang"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.895,
+          1.3917
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Punggol"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.9023,
+          1.4051
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Queenstown"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8014,
+          1.2942
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bukit Timah"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.7764,
+          1.3294
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Serangoon"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8737,
+          1.3508
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sentosa"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          103.8198,
+          1.2494
+        ]
+      }
+    }
+  ]
+}
